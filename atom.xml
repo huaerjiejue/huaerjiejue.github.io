@@ -3,11 +3,11 @@
   <title>小阔的bug日常</title>
   
   <subtitle>bug改不完了</subtitle>
-  <link href="https://github.com/huaerjiejue/huaerjiejue.github.io/atom.xml" rel="self"/>
+  <link href="https://huaerjiejue.github.io/atom.xml" rel="self"/>
   
-  <link href="https://github.com/huaerjiejue/huaerjiejue.github.io/"/>
+  <link href="https://huaerjiejue.github.io/"/>
   <updated>2022-12-19T23:34:31.571Z</updated>
-  <id>https://github.com/huaerjiejue/huaerjiejue.github.io/</id>
+  <id>https://huaerjiejue.github.io/</id>
   
   <author>
     <name>小阔</name>
@@ -18,8 +18,8 @@
   
   <entry>
     <title>Hello World</title>
-    <link href="https://github.com/huaerjiejue/huaerjiejue.github.io/2022/12/20/hello-world/"/>
-    <id>https://github.com/huaerjiejue/huaerjiejue.github.io/2022/12/20/hello-world/</id>
+    <link href="https://huaerjiejue.github.io/2022/12/20/hello-world/"/>
+    <id>https://huaerjiejue.github.io/2022/12/20/hello-world/</id>
     <published>2022-12-19T23:34:31.571Z</published>
     <updated>2022-12-19T23:34:31.571Z</updated>
     
