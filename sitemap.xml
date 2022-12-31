@@ -2,6 +2,15 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://huaerjiejue.github.io/2022/12/31/last-day-of-2022/</loc>
+    
+    <lastmod>2022-12-31</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://huaerjiejue.github.io/2022/12/25/python%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B01/</loc>
     
     <lastmod>2022-12-25</lastmod>
@@ -22,7 +31,7 @@
 
   <url>
     <loc>https://huaerjiejue.github.io/</loc>
-    <lastmod>2022-12-25</lastmod>
+    <lastmod>2022-12-31</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
@@ -30,7 +39,7 @@
   
   <url>
     <loc>https://huaerjiejue.github.io/tags/%E5%8D%95%E5%BC%95%E5%8F%B7%EF%BC%8C%E5%8F%8C%E5%BC%95%E5%8F%B7%EF%BC%8C%E6%8B%AC%E5%8F%B7/</loc>
-    <lastmod>2022-12-25</lastmod>
+    <lastmod>2022-12-31</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
