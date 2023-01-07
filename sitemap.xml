@@ -2,6 +2,15 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://huaerjiejue.github.io/2023/01/07/sql%E6%B3%A8%E5%85%A5%E4%B9%8Bcookie%E6%B3%A8%E5%85%A5/</loc>
+    
+    <lastmod>2023-01-07</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://huaerjiejue.github.io/2023/01/05/sql%E6%B3%A8%E5%85%A5%E7%AC%94%E8%AE%B02/</loc>
     
     <lastmod>2023-01-05</lastmod>
@@ -48,6 +57,13 @@
   
   <url>
     <loc>https://huaerjiejue.github.io/tags/%E5%8D%95%E5%BC%95%E5%8F%B7%EF%BC%8C%E5%8F%8C%E5%BC%95%E5%8F%B7%EF%BC%8C%E6%8B%AC%E5%8F%B7/</loc>
+    <lastmod>2023-01-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://huaerjiejue.github.io/tags/sql%E6%B3%A8%E5%85%A5-%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8-cookie/</loc>
     <lastmod>2023-01-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
