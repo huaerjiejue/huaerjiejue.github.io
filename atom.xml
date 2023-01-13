@@ -6,7 +6,7 @@
   <link href="https://huaerjiejue.github.io/atom.xml" rel="self"/>
   
   <link href="https://huaerjiejue.github.io/"/>
-  <updated>2023-01-13T02:14:02.724Z</updated>
+  <updated>2023-01-13T09:39:05.104Z</updated>
   <id>https://huaerjiejue.github.io/</id>
   
   <author>
@@ -15,6 +15,28 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>gameshell命令总结</title>
+    <link href="https://huaerjiejue.github.io/2023/01/13/gameshell%E5%91%BD%E4%BB%A4%E6%80%BB%E7%BB%93/"/>
+    <id>https://huaerjiejue.github.io/2023/01/13/gameshell%E5%91%BD%E4%BB%A4%E6%80%BB%E7%BB%93/</id>
+    <published>2023-01-13T09:23:10.000Z</published>
+    <updated>2023-01-13T09:39:05.104Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="game-shell命令总结"><a href="#game-shell命令总结" class="headerlink" title="game shell命令总结"></a>game shell命令总结</h1><p>最近迷上了gameshell这个小游戏，总体来说挺不错的，在玩游戏的同时就可以学习linux的命令，所以写一篇博客可以记录一下，估计当我全部通关后应该挺多的吧。</p><h2 id="mission-1-15"><a href="#mission-1-15" class="headerlink" title="mission 1~15:"></a>mission 1~15:</h2><ul><li>cat：显示文本信息</li><li>cd：进入文件，单纯的cd是回到根目录，~代表根目录，加上。。是返回上一级目录，加上-是返回上次操作时的目录</li><li>ls：列出当前文件夹中的文件，-a是全部显示，包括隐藏掉的，医保linux文件以‘.’开头的文件是隐藏的，-l列出信息的同时列出创建时间等细节</li><li>cal：列出日历信息，加上年份时列出某具体一年的日历</li><li>alias：简化命令，例如：<code>alias la=&#39;ls -a&#39;</code>是将后面的命令包装成前面的命令</li><li>rm:：移除文件</li><li>mv：移动文件，相当于剪切，<code>mv FILE dir</code>FILE是要移动的文件，dir是移动的目的文件夹</li><li>mkdir：make direction 创建文件夹</li><li>pwd：列出当前文件位置</li></ul>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h1 id=&quot;game-shell命令总结&quot;&gt;&lt;a href=&quot;#game-shell命令总结&quot; class=&quot;headerlink&quot; title=&quot;game shell命令总结&quot;&gt;&lt;/a&gt;game shell命令总结&lt;/h1&gt;&lt;p&gt;最近迷上了gameshell这个小游戏，总体</summary>
+      
+    
+    
+    
+    
+    <category term="linux gameshell" scheme="https://huaerjiejue.github.io/tags/linux-gameshell/"/>
+    
+  </entry>
   
   <entry>
     <title>sql注入笔记3</title>
