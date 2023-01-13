@@ -6,7 +6,7 @@
   <link href="https://huaerjiejue.github.io/atom.xml" rel="self"/>
   
   <link href="https://huaerjiejue.github.io/"/>
-  <updated>2023-01-12T09:18:25.499Z</updated>
+  <updated>2023-01-13T02:14:02.724Z</updated>
   <id>https://huaerjiejue.github.io/</id>
   
   <author>
@@ -15,6 +15,29 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>sql注入笔记3</title>
+    <link href="https://huaerjiejue.github.io/2023/01/12/sql%E6%B3%A8%E5%85%A5%E7%AC%94%E8%AE%B03/"/>
+    <id>https://huaerjiejue.github.io/2023/01/12/sql%E6%B3%A8%E5%85%A5%E7%AC%94%E8%AE%B03/</id>
+    <published>2023-01-12T11:09:44.000Z</published>
+    <updated>2023-01-13T02:14:02.724Z</updated>
+    
+    <content type="html"><![CDATA[<p>今天是sqllab-25关，总体来说是比较简单的。首先，根据题目‘your or &amp; and is mine’可知作者在创作这关的时候把or和and处理了，好在作者比较贴心地在下面给出了你输入的语句在后台的显示情况。</p><p>首先我们可以测试一下，输入单引号（‘），发现报错，可以得知id由单引号闭合，然后输入and 1&#x3D;2，我们根据显示发现我们的代码到了后台变成了1&#x3D;2，说明经过后端验证，它把我们的and吞掉了，同理，根据题目，可以得知or应该也如此。</p><p>我们看一下网站代码，发现这样两个语句：</p><figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">blacklist</span>(<span class="params"><span class="variable">$id</span></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"><span class="variable">$id</span>= <span class="title function_ invoke__">preg_replace</span>(<span class="string">&#x27;/or/i&#x27;</span>,<span class="string">&quot;&quot;</span>, <span class="variable">$id</span>);<span class="comment">//strip out OR (non case sensitive)</span></span><br><span class="line"><span class="variable">$id</span>= <span class="title function_ invoke__">preg_replace</span>(<span class="string">&#x27;/AND/i&#x27;</span>,<span class="string">&quot;&quot;</span>, <span class="variable">$id</span>);<span class="comment">//Strip out AND (non case sensitive)</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">return</span> <span class="variable">$id</span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>可以得知preg_replace函数将and和or换成了null，也就是无，对应的方法也挺简单，比如我们要输入and，只需要输入anandd就好了，因为这个函数只是简单地出现了一次，所以它在它有且仅有的一次转换中，将中间的 and消除了，而因为中间的and消失了，两头的字母自然合并，组成了一个新的and，这样就成功绕过了。然后几句可以进行联合注入，报错注入等惊醒sql注入。</p><p>其实这次测试比较简单，但是我发现自己真实漏洞百出，基础实在是有点不扎实，下面写一下如何进行union查询的时候将数据一块列出，而不使用limit，毕竟懒癌晚期，没办法。成组列出数据也挺简单，只需要<code>group_concat()</code>就好，下面是具体使用这个这个函数的例子：</p><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">id=-1&#x27; union select 1,group_concat(table_name),3 from information_schema.tables where table_schema=&#x27;security&#x27; --+</span><br></pre></td></tr></table></figure><p>说一下使用这个函数的注意事项吧，</p><p>​    1.<code>group_concat</code>后面用括号括起来要查询的具体的值</p><p>​    2.无论什么，查询值的时候要先from后where</p><p>​    3.数据库要么写database（），要么写’security‘（数据库的名字，主义要加上单引号）</p><p>​    4.from…where…语句主义要放在select整体语句的后面，不能夹在中间</p><p>然后还有一个事情，当时死活构造不出来联合查询的语句，然后准备用sqlmap跑一下，出现了NULL这个东东，巧了，这个我在burpsuite的实验室也看到过：</p><p><code>id=-3159&#39; UNION ALL SELECT NULL,CONCAT(0x716a716b71,0x7674475a49545048426e43434d54486f754e466a5053586a486d4d76775156466774437061495079,0x716b7a6b71),NULL#</code></p><p>这里有两个东西不太懂，一个是NULL。另一个是union all select</p><p> 首先说第一个，NULL，根据chatgpt的结果null总共有一下4个作用：</p><ul><li>在数据库表中表示该字段没有值</li><li>在 SQL 语句中表示缺失值或不确定值</li><li>在 UNION SELECT 语句中填充缺失的字段</li><li>在需要在某个字段中显示一个空值的情况下使用</li></ul><p>我猜想这里应该就是第三点吧，其实想了想，貌似没啥用，下面说第二个，作用也不大（无语.jpg）union select和union allselect的主要区别是union select会从最终结果中删除重复行内，而union all select不会，就是酱紫。</p><p>对了，今天玩了会每个大学教授的<a href="https://github.com/phyver/GameShell">gameshell</a>，说实话挺有趣的，也学习到了一些linux的命令，包括</p><ul><li>ls：列出当前目录下的所有文件</li><li>cd：返回主目录</li><li>cd ..:返回上一层</li><li>cd -:返回上一次操作的目录</li><li>pwd：列出当前的主目录</li><li>mkdir：make dirsearch，英文应该是这样写，意思是创建一个文件夹</li><li>rm：remove，移除</li><li>mv：move，移动文件</li><li>cd DIR&#x2F;DIR&#x2F;DIR：移动到指定文件夹，ps，<del>代表根目录，有些时候我们移动文件的时候跨度会很大，需要</del>来进行指向</li><li>ls -A列出当前文件夹的所有目录，包括隐藏的文件，有些文件隐藏后单纯的使用ls是不会显示出来的，这时候我们就需要-A了</li></ul><p>好了，以上就是今天学习的内容了，再接再厉吧，往事已成烟云，未来依旧可期。</p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;p&gt;今天是sqllab-25关，总体来说是比较简单的。首先，根据题目‘your or &amp;amp; and is mine’可知作者在创作这关的时候把or和and处理了，好在作者比较贴心地在下面给出了你输入的语句在后台的显示情况。&lt;/p&gt;
+&lt;p&gt;首先我们可以测试一下，输入单引号（</summary>
+      
+    
+    
+    
+    
+    <category term="sql注入 渗透测试" scheme="https://huaerjiejue.github.io/tags/sql%E6%B3%A8%E5%85%A5-%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95/"/>
+    
+  </entry>
   
   <entry>
     <title>sql注入之cookie注入</title>
