@@ -6,7 +6,7 @@
   <link href="https://huaerjiejue.github.io/atom.xml" rel="self"/>
   
   <link href="https://huaerjiejue.github.io/"/>
-  <updated>2023-01-16T13:53:28.882Z</updated>
+  <updated>2023-01-18T11:31:05.686Z</updated>
   <id>https://huaerjiejue.github.io/</id>
   
   <author>
@@ -15,6 +15,30 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>sqli-26a</title>
+    <link href="https://huaerjiejue.github.io/2023/01/18/sqli-26a/"/>
+    <id>https://huaerjiejue.github.io/2023/01/18/sqli-26a/</id>
+    <published>2023-01-18T11:15:50.000Z</published>
+    <updated>2023-01-18T11:31:05.686Z</updated>
+    
+    <content type="html"><![CDATA[<p>​    我决定了，以后就直接写题目了，这样比较只管，还简单，今天是26a</p><p>​    这关有点不寻常，它首先关闭了报错显示，然后过滤了一些符号，这就导致我在测试参数闭合的时候手忙脚乱，以至于昨天心烦意乱的上床了。</p><p>​    根据源码，我们得知，这关闭合情况是单引号和括号，但是无论我怎么测试都测试不出来那个括号。</p><p>​    其实网上有相应的方法，但是，今天我才看到网络世界的丰富多彩，真他妈一塌糊涂啊，有的上来直接看源码，然后直接闭合，有的根本不对，有的明明双引号也可以，但就是忽略，属实让我想狠狠吐槽一下子。下面说一下我在网上好不容易找到的两种测试闭合的方式，其中第一种实在是太牛了。</p><h4 id="First"><a href="#First" class="headerlink" title="First:"></a>First:</h4><p><code>id=2&#39;&amp;&amp;&#39;1&#39;=&#39;1</code></p><p>​    若查询语句为<code>where id=&#39;$id&#39;</code>，查询时是<code>where id=&#39;2&#39;&amp;&amp;&#39;1&#39;=&#39;1&#39;</code>，结果是<code>where id=&#39;2&#39;</code>，回显会是<code>id=2</code>。</p><p>​    若查询语句为<code>where id=(&#39;$id&#39;)</code>，查询时是<code>where id=(&#39;2&#39;&amp;&amp;&#39;1&#39;=&#39;1&#39;)</code>，MySQL 将<code>&#39;2&#39;</code>作为了 Bool 值，结果是<code>where id=(&#39;1&#39;)</code>，回显会是<code>id=1</code>。</p><p>​    这属实是聪明了，不是吗？就是不知道双引号的时候怎么办😖😖😖😖</p><h4 id="Second"><a href="#Second" class="headerlink" title="Second:"></a>Second:</h4><p>;%00</p><p>​    说实话，这个我目前还不知道为什么，但他就是可以区分出来括号和双引号，你说气不气</p><p>​    当输入1’；%00的时候，没有回显，表示有错误</p><p>​    当输入1‘”；%00的时候，同样没有回显，表示有错误</p><p>​    当输入1’）；%00的时候，回显正常，表示ok</p><p>这个确实听迷惑，但也可以，emmmmmm，离谱</p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;p&gt;​    我决定了，以后就直接写题目了，这样比较只管，还简单，今天是26a&lt;/p&gt;
+&lt;p&gt;​    这关有点不寻常，它首先关闭了报错显示，然后过滤了一些符号，这就导致我在测试参数闭合的时候手忙脚乱，以至于昨天心烦意乱的上床了。&lt;/p&gt;
+&lt;p&gt;​    根据源码，我们得知，这</summary>
+      
+    
+    
+    
+    
+    <category term="sqli-lab" scheme="https://huaerjiejue.github.io/tags/sqli-lab/"/>
+    
+  </entry>
   
   <entry>
     <title>sql注入笔记4</title>
@@ -46,9 +70,9 @@
     <link href="https://huaerjiejue.github.io/2023/01/13/gameshell%E5%91%BD%E4%BB%A4%E6%80%BB%E7%BB%93/"/>
     <id>https://huaerjiejue.github.io/2023/01/13/gameshell%E5%91%BD%E4%BB%A4%E6%80%BB%E7%BB%93/</id>
     <published>2023-01-13T09:23:10.000Z</published>
-    <updated>2023-01-16T09:51:37.535Z</updated>
+    <updated>2023-01-17T09:45:24.037Z</updated>
     
-    <content type="html"><![CDATA[<h1 id="game-shell命令总结"><a href="#game-shell命令总结" class="headerlink" title="game shell命令总结"></a>game shell命令总结</h1><p>最近迷上了gameshell这个小游戏，总体来说挺不错的，在玩游戏的同时就可以学习linux的命令，所以写一篇博客可以记录一下，估计当我全部通关后应该挺多的吧。</p><p>[TOC]</p><h2 id="mission-1-14"><a href="#mission-1-14" class="headerlink" title="mission 1~14:"></a>mission 1~14:</h2><ul><li>cat：显示文本信息</li><li>cd：进入文件，单纯的cd是回到根目录，~代表根目录，加上。。是返回上一级目录，加上-是返回上次操作时的目录</li><li>ls：列出当前文件夹中的文件，-a是全部显示，包括隐藏掉的，医保linux文件以‘.’开头的文件是隐藏的，-l列出信息的同时列出创建时间等细节</li><li>cal：列出日历信息，加上年份时列出某具体一年的日历</li><li>alias：简化命令，例如：<code>alias la=&#39;ls -a&#39;</code>是将后面的命令包装成前面的命令</li><li>rm:：移除文件</li><li>mv：移动文件，相当于剪切，<code>mv FILE dir</code>FILE是要移动的文件，dir是移动的目的文件夹</li><li>mkdir：make direction 创建文件夹</li><li>pwd：列出当前文件位置</li></ul><h2 id="mission-15"><a href="#mission-15" class="headerlink" title="mission 15:"></a>mission 15:</h2><ul><li>介绍了一下nano编辑器的简单使用，可以用于创建文件并写入文件。</li></ul><p>  ​    o是保存，x是退出，当然编辑器上有提示</p><h2 id="mission-16"><a href="#mission-16" class="headerlink" title="mission 16:"></a>mission 16:</h2><ul><li>使用了一下 alias journal&#x3D;’nano ~&#x2F;Forest&#x2F;Hut&#x2F;Chest&#x2F;journal.txt’来在任意位置使用</li></ul><hr><p>这里有一个小插曲，介绍了re这个文件，例如bash命令下是.bashrc，zsh命令下是.zshrc，用于记录自己的alias命令，以防止自己忘记，当然，不是电脑帮忙记住，是要自己手动输入</p><hr><h2 id="mission17"><a href="#mission17" class="headerlink" title="mission17:"></a>mission17:</h2><ul><li>nothing,it is trully a game,😂😂</li></ul><h2 id="mission-18"><a href="#mission-18" class="headerlink" title="mission 18:"></a>mission 18:</h2><p>了解了一个有趣的linux命令，xeyes，会出现一只小眼睛一直看着你的鼠标，非常有意思，然后如果你想让它后台运行，也就是不妨碍你继续工作，可以使用 xeyes &amp;这个命令，它就会后台运行，然后，ctrl+c就是退出。下面再列举一些有趣的linux命令：</p><ol><li><p>xeyes，出现一双眼睛</p></li><li><p>rev，颠倒输入的字符，如果输入asd，输出dsa</p></li><li><p>sl，会出现一辆火车从屏幕右边开往屏幕左边</p></li><li><p>asciiview，给它一个照片，它会输出用二进制表示的相应照片，单数需要先安装</p><p>aview，然后安装imagemagick，最后使用即可</p></li><li><p>aafire，在终端放一把火，安装libaa-bin，运行即可</p></li><li><p>cmatrix，字符雨，想象黑客帝国，同样，安装cmatrix，然后运行</p></li><li><p>boxes，使用字符型图形包装文字，具体参考<a href="(https://zhuanlan.zhihu.com/p/52558937)">boxes</a></p></li></ol>]]></content>
+    <content type="html"><![CDATA[<h1 id="game-shell命令总结"><a href="#game-shell命令总结" class="headerlink" title="game shell命令总结"></a>game shell命令总结</h1><p>最近迷上了gameshell这个小游戏，总体来说挺不错的，在玩游戏的同时就可以学习linux的命令，所以写一篇博客可以记录一下，估计当我全部通关后应该挺多的吧。</p><p>[TOC]</p><h2 id="mission-1-14"><a href="#mission-1-14" class="headerlink" title="mission 1~14:"></a>mission 1~14:</h2><ul><li>cat：显示文本信息</li><li>cd：进入文件，单纯的cd是回到根目录，~代表根目录，加上。。是返回上一级目录，加上-是返回上次操作时的目录</li><li>ls：列出当前文件夹中的文件，-a是全部显示，包括隐藏掉的，医保linux文件以‘.’开头的文件是隐藏的，-l列出信息的同时列出创建时间等细节</li><li>cal：列出日历信息，加上年份时列出某具体一年的日历</li><li>alias：简化命令，例如：<code>alias la=&#39;ls -a&#39;</code>是将后面的命令包装成前面的命令</li><li>rm:：移除文件</li><li>mv：移动文件，相当于剪切，<code>mv FILE dir</code>FILE是要移动的文件，dir是移动的目的文件夹</li><li>mkdir：make direction 创建文件夹</li><li>pwd：列出当前文件位置</li></ul><h2 id="mission-15"><a href="#mission-15" class="headerlink" title="mission 15:"></a>mission 15:</h2><ul><li>介绍了一下nano编辑器的简单使用，可以用于创建文件并写入文件。</li></ul><p>  ​    o是保存，x是退出，当然编辑器上有提示</p><h2 id="mission-16"><a href="#mission-16" class="headerlink" title="mission 16:"></a>mission 16:</h2><ul><li>使用了一下 alias journal&#x3D;’nano ~&#x2F;Forest&#x2F;Hut&#x2F;Chest&#x2F;journal.txt’来在任意位置使用</li></ul><hr><p>这里有一个小插曲，介绍了re这个文件，例如bash命令下是.bashrc，zsh命令下是.zshrc，用于记录自己的alias命令，以防止自己忘记，当然，不是电脑帮忙记住，是要自己手动输入</p><hr><h2 id="mission17"><a href="#mission17" class="headerlink" title="mission17:"></a>mission17:</h2><ul><li>nothing,it is trully a game,😂😂</li></ul><h2 id="mission-18"><a href="#mission-18" class="headerlink" title="mission 18:"></a>mission 18:</h2><p>了解了一个有趣的linux命令，xeyes，会出现一只小眼睛一直看着你的鼠标，非常有意思，然后如果你想让它后台运行，也就是不妨碍你继续工作，可以使用 xeyes &amp;这个命令，它就会后台运行，然后，ctrl+c就是退出。下面再列举一些有趣的linux命令：</p><ol><li><p>xeyes，出现一双眼睛</p></li><li><p>rev，颠倒输入的字符，如果输入asd，输出dsa</p></li><li><p>sl，会出现一辆火车从屏幕右边开往屏幕左边</p></li><li><p>asciiview，给它一个照片，它会输出用二进制表示的相应照片，单数需要先安装</p><p>aview，然后安装imagemagick，最后使用即可</p></li><li><p>aafire，在终端放一把火，安装libaa-bin，运行即可</p></li><li><p>cmatrix，字符雨，想象黑客帝国，同样，安装cmatrix，然后运行</p></li><li><p>boxes，使用字符型图形包装文字，具体参考<a href="(https://zhuanlan.zhihu.com/p/52558937)">boxes</a></p></li></ol><h2 id="mission-19-amp-20"><a href="#mission-19-amp-20" class="headerlink" title="mission 19&amp;20:"></a>mission 19&amp;20:</h2><ul><li>ls -R,列出当前目录的文件以及文件中的文件，就是把这个文件中的所有东西都列举出来。</li><li>tree，同ls-r类似，就是会用树状图的形式列举出来</li></ul><p> 以上两个命令对于找文件非常好用</p>]]></content>
     
     
       

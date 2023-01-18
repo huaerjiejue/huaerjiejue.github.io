@@ -1,0 +1,16 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> sqli-26a · 小阔的bug日常</title><meta name="description" content="sqli-26a - 小阔"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="search" type="application/opensearchdescription+xml" href="https://huaerjiejue.github.io/atom.xml" title="小阔的bug日常"><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="小阔的bug日常" type="application/atom+xml">
+</head><body><div class="wrap"><header><a href="/" class="logo-link"><img src="/favicon.png" alt="logo"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/archives/" target="_self" class="nav-list-link">ARCHIVE</a></li><li class="nav-list-item"><a href="/atom.xml" target="_self" class="nav-list-link">RSS</a></li></ul></header><main class="container"><div class="post"><article class="post-block"><h1 class="post-title">sqli-26a</h1><div class="post-info">2023年1月18日</div><div class="post-content"><p>​    我决定了，以后就直接写题目了，这样比较只管，还简单，今天是26a</p>
+<p>​    这关有点不寻常，它首先关闭了报错显示，然后过滤了一些符号，这就导致我在测试参数闭合的时候手忙脚乱，以至于昨天心烦意乱的上床了。</p>
+<p>​    根据源码，我们得知，这关闭合情况是单引号和括号，但是无论我怎么测试都测试不出来那个括号。</p>
+<p>​    其实网上有相应的方法，但是，今天我才看到网络世界的丰富多彩，真他妈一塌糊涂啊，有的上来直接看源码，然后直接闭合，有的根本不对，有的明明双引号也可以，但就是忽略，属实让我想狠狠吐槽一下子。下面说一下我在网上好不容易找到的两种测试闭合的方式，其中第一种实在是太牛了。</p>
+<h4 id="First"><a href="#First" class="headerlink" title="First:"></a>First:</h4><p><code>id=2&#39;&amp;&amp;&#39;1&#39;=&#39;1</code></p>
+<p>​    若查询语句为<code>where id=&#39;$id&#39;</code>，查询时是<code>where id=&#39;2&#39;&amp;&amp;&#39;1&#39;=&#39;1&#39;</code>，结果是<code>where id=&#39;2&#39;</code>，回显会是<code>id=2</code>。</p>
+<p>​    若查询语句为<code>where id=(&#39;$id&#39;)</code>，查询时是<code>where id=(&#39;2&#39;&amp;&amp;&#39;1&#39;=&#39;1&#39;)</code>，MySQL 将<code>&#39;2&#39;</code>作为了 Bool 值，结果是<code>where id=(&#39;1&#39;)</code>，回显会是<code>id=1</code>。</p>
+<p>​    这属实是聪明了，不是吗？就是不知道双引号的时候怎么办😖😖😖😖</p>
+<h4 id="Second"><a href="#Second" class="headerlink" title="Second:"></a>Second:</h4><p>;%00</p>
+<p>​    说实话，这个我目前还不知道为什么，但他就是可以区分出来括号和双引号，你说气不气</p>
+<p>​    当输入1’；%00的时候，没有回显，表示有错误</p>
+<p>​    当输入1‘”；%00的时候，同样没有回显，表示有错误</p>
+<p>​    当输入1’）；%00的时候，回显正常，表示ok</p>
+<p>这个确实听迷惑，但也可以，emmmmmm，离谱</p>
+</div></article></div></main><footer><div class="paginator"><a href="/2023/01/15/sql%E6%B3%A8%E5%85%A5%E7%AC%94%E8%AE%B04/" class="next">下一篇</a></div><div class="copyright"><p>© 2015 - 2023 <a href="https://huaerjiejue.github.io">小阔</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/pinggod/hexo-theme-apollo" target="_blank">hexo-theme-apollo</a>.</p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha384-crwIf/BuaWM9rM65iM+dWFldgQ1Un8jWZMuh3puxb8TOY9+linwLoI7ZHZT+aekW" crossorigin="anonymous"></script></body></html>
