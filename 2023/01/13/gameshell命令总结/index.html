@@ -48,4 +48,26 @@
 <li>tree，同ls-r类似，就是会用树状图的形式列举出来</li>
 </ul>
 <p> 以上两个命令对于找文件非常好用</p>
+<h2 id="mission-21："><a href="#mission-21：" class="headerlink" title="mission 21："></a>mission 21：</h2><ul>
+<li><p>find，用于查找文件</p>
+<p>主要参数： -name，指定名字，必须完全一样，不然就需要*和？</p>
+<p>​                   -iname，指定名字，但忽略大小写</p>
+<p>​                    -size，指定大小，其中有 b块 c字节 w字 k千字节 M兆字节 G吉字节，注意大小写</p>
+<p>具体可以看<a target="_blank" rel="noopener" href="https://wangchujiang.com/linux-command/c/find.html#!kw=head">find 命令，Linux find 命令详解：在指定目录下查找文件 - Linux 命令搜索引擎 (wangchujiang.com)</a>需要外网。</p>
+</li>
+<li><p>man，<strong>man命令</strong> 是Linux下的帮助指令，通过man指令可以查看Linux中的指令帮助、配置文件帮助和编程帮助等信息。</p>
+</li>
+</ul>
+<h2 id="mission-22："><a href="#mission-22：" class="headerlink" title="mission 22："></a>mission 22：</h2><ul>
+<li>head，用于print文件里的内容，通过-n可以指定输出几行，与cat的区别是，cat是展示全部，head是展示前几行，默认是输出10行，-c参数用于指定字节，后面的number可以有一个乘数后缀，例如1024*1024之类的。也可以使用二进制前缀</li>
+</ul>
+<h2 id="mission-23"><a href="#mission-23" class="headerlink" title="mission 23:"></a>mission 23:</h2><ul>
+<li>tail，同head差不多，不同的是tail展示后几行，默认也是10行，也可以通过-n等参数进行控制</li>
+</ul>
+<h2 id="mission-24"><a href="#mission-24" class="headerlink" title="mission 24:"></a>mission 24:</h2><ul>
+<li>cat FILE1 FILE2 FILE3 FILEn，依次顺序输出</li>
+</ul>
+<h2 id="mission-25"><a href="#mission-25" class="headerlink" title="mission 25:"></a>mission 25:</h2><ul>
+<li>|(管道)，用于将两个进程相联系，举个例子：<code>COMMAND1 | COMMAND2</code> 将命令1的输出当作命令2的输入，这一关使用的是这样的，因为cat可以同24关一样一块输出，但是tail不能使用多个文件，但是cat不能去掉标题，所以可以使用cat将两个文件先结合起来，然后通过tail去除标题，<code>cat page_01 page_02 | tail -n 16</code></li>
+</ul>
 </div></article></div></main><footer><div class="paginator"><a href="/2023/01/15/sql%E6%B3%A8%E5%85%A5%E7%AC%94%E8%AE%B04/" class="prev">上一篇</a><a href="/2023/01/12/sql%E6%B3%A8%E5%85%A5%E7%AC%94%E8%AE%B03/" class="next">下一篇</a></div><div class="copyright"><p>© 2015 - 2023 <a href="https://huaerjiejue.github.io">小阔</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/pinggod/hexo-theme-apollo" target="_blank">hexo-theme-apollo</a>.</p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha384-crwIf/BuaWM9rM65iM+dWFldgQ1Un8jWZMuh3puxb8TOY9+linwLoI7ZHZT+aekW" crossorigin="anonymous"></script></body></html>

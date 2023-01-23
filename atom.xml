@@ -6,7 +6,7 @@
   <link href="https://huaerjiejue.github.io/atom.xml" rel="self"/>
   
   <link href="https://huaerjiejue.github.io/"/>
-  <updated>2023-01-18T11:31:05.686Z</updated>
+  <updated>2023-01-23T14:34:08.798Z</updated>
   <id>https://huaerjiejue.github.io/</id>
   
   <author>
@@ -17,13 +17,55 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>sqli-29</title>
+    <link href="https://huaerjiejue.github.io/2023/01/23/sqli-29/"/>
+    <id>https://huaerjiejue.github.io/2023/01/23/sqli-29/</id>
+    <published>2023-01-23T07:55:16.000Z</published>
+    <updated>2023-01-23T14:34:08.798Z</updated>
+    
+    <content type="html"><![CDATA[<p>​    第29关，可能是编写作者的问题或者其他，第29关如果直接进入，跟他妈没有防御一样，<img src="https://jsd.cdn.zzko.cn/gh/huaerjiejue/pic_of_myweb@master/image.3f4ypw04roe0.webp" alt="image" style="zoom: 33%;" /></p><p>直接输入id，单引号闭合，然后直接注入就好，直接爆破了，然后带着疑惑去网上查询，发现人家都是又WAF的，真奇怪，为什么我直接输入id&#x3D;1‘就不会准换页面，<img src="https://cdn.staticaly.com/gh/huaerjiejue/pic_of_myweb@master/image.3z9d3vf7zn80.webp" alt="image" style="zoom:33%;" /></p><p>然后看到了<a href="https://blog.51cto.com/u_15064644/3461635">一篇文章</a>发现可能是文件的问题，打开文件目录，发现这三个文件</p><p><img src="https://jsd.cdn.zzko.cn/gh/huaerjiejue/pic_of_myweb@master/image.6jqfjz6wqy40.webp" alt="image"></p><p>于是试着在less-29后面加上login.php，就有waf了，成功可以有难度的注入了。</p><p><strong>正文开始：</strong></p><p>输入id&#x3D;1，成功，</p><p>输入id&#x3D;1’，报错，转出，<img src="https://jsd.cdn.zzko.cn/gh/huaerjiejue/pic_of_myweb@master/image.iedtglz30uw.webp" alt="image" style="zoom:33%;" /></p><p>正当迷茫的时候，眼前一亮，发现有两个参考</p><p><img src="https://cdn.staticaly.com/gh/huaerjiejue/pic_of_myweb@master/image.49lczztlynm0.webp" alt="image"></p><p>​    看了一眼，emmm，看不懂，但大概讲的是http参数污染，我猜测作者可能想通过这关教程参数污染，向浏览器输入<code>?id=1 &amp;id=222 union select 1,2,3 —+</code>可惜，没有成功，通过一番改动后发现<code>?id=1&amp;id=222&#39; union select 1,2,3 --+</code>可以，为什么呢，根据后面我们可知，后端代码通过&amp;分隔语句，第一个语句后面有空格，俨然不成立，然后由于php阿帕奇数据库面对参数污染的情况下查询的是第二个参数，但是我没有协商分号，通过这两个改动，语句成功执行。<img src="https://cdn.staticaly.com/gh/huaerjiejue/pic_of_myweb@master/image.2eyz3gm7k05c.webp" alt="image" style="zoom:33%;" /></p><p>后面就可以愉快的注入了，报数据一气呵成。</p><p>下面通过代码说明一下绕过原理：</p><p>前面大抵是无差别的，就是多了两个函数，<code>java_implimentation</code>和<code>whitelist</code>,</p><p><img src="https://cdn.staticaly.com/gh/huaerjiejue/pic_of_myweb@master/image.747514oyn8w0.webp" alt="image"></p><p>​    然后接着向下查找这两个函数，发现代码如下</p><img src="https://cdn.staticaly.com/gh/huaerjiejue/pic_of_myweb@master/image.3yqupbctc0o0.webp" alt="image" style="zoom: 50%;" /><img src="https://cdn.staticaly.com/gh/huaerjiejue/pic_of_myweb@master/image.6esi9vsvh9c0.webp" alt="image" style="zoom: 50%;" /><p>​    上面第一个函数就是与传入进来的数据进行比较，判断是否是纯数字，如果是就通过，如果并不是就转到报错界面，第二个函数就是把传入的数字通过&amp;进行划分，放进数组里，找到前面是id的一个元素，返回这个元素id&#x3D;后面的东西，而主函数就是将这个分离出来的东西放入whitelist进行检测，如果没有错误就会执行。</p><p>我们的构造语句就是通过在语句中加入&amp;进行划分，java_函数通过第一个id&#x3D;1后因为break后面就不进行检测了，然后传出的数据自然可以通过whitelist检测，顺利通过后再将原来的语句放入数据库进行查询，而阿帕奇php的数据库查询的确实后面的参数，这样，我们就绕过了防御并进行了入侵。</p><p>​    简单说明一下，不同的服务器，不同的语言对于参数污染的处理不同，渗透测试的时候可以依据下面的数据，<img src="https://cdn.staticaly.com/gh/huaerjiejue/pic_of_myweb@master/image.2s6cxefbit80.webp" alt="image" style="zoom: 67%;" /></p><p>通过上面的内容我们可以对于不同的情况进行分析，当然，没有的数据也不要慌，试一下就好了。简单说明一下，<code>java_implimentation()</code>是用于模仿参数污染，当输入不同参数的时候以&amp;进行分割，但是这个函数的问题就是它划分完之后找到一个id就break，没有多次进行验证，这样就导致了hpp（参数污染）成功。</p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;p&gt;​    第29关，可能是编写作者的问题或者其他，第29关如果直接进入，跟他妈没有防御一样，&lt;img src=&quot;https://jsd.cdn.zzko.cn/gh/huaerjiejue/pic_of_myweb@master/image.3f4ypw04roe0.web</summary>
+      
+    
+    
+    
+    
+  </entry>
+  
+  <entry>
+    <title>sqli-27</title>
+    <link href="https://huaerjiejue.github.io/2023/01/19/sqli-27/"/>
+    <id>https://huaerjiejue.github.io/2023/01/19/sqli-27/</id>
+    <published>2023-01-19T09:15:26.000Z</published>
+    <updated>2023-01-20T12:20:54.676Z</updated>
+    
+    <content type="html"><![CDATA[<p>  今天发现个好玩的情况，照常注入，过滤了union，select，同样通过多次拼写成功绕过，然后我输入测试语句：<code>？id=13333%27ununionion%a0seseselectlectlect%a01,group_concat%28table_name%29,3%a0from%a0information_schema.tables%a0where%a0table_schema=%27security%27||%271</code></p><p>下面确实爆出数据了，但是我却没有输出相应的回显，输出了这个东西： CHARACTER_SETS （后面还有好多，但是太丑了，就不都弄出来了），这是个什么?网上一查，这是information_schema下面的表，好家伙，我不是具体指定表了吗，为什么还会输出上面的表，仔细对比发现也没有错误啊，终于，我把目光锁定到后面的||上，将它改一改，改成；%00（不得不说，真是个好东西），发现回显正确，果然是后面或者的问题，然后找chatgpt谈一谈，了解了个大概，就是当我们如上面那么写的时候，sql就会认为这是一个判断，只要是非0的东西，就是1，本来就是或者了，再加上后面就是1，所以这玩意显示个1，因此，sql也就不会按照我想要的方式查询了，我猜想，后端代码可能将<code>where%a0table_schema=%27security%27||%271</code></p><p>看作一个语句了，恰巧返回1，也就可以解释为什么返回information_chema的表了，可以，开心的一天。</p><p>​    吐槽一次，这样好丑，仿佛有种字不好看的日记的形式，主要是不想捣鼓图库，哎，懒癌没救了。没准哪一天真的弄了一个呢。</p><p>  by the way，绕过union，select可以混合大小写绕过</p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;p&gt;  今天发现个好玩的情况，照常注入，过滤了union，select，同样通过多次拼写成功绕过，然后我输入测试语句：&lt;code&gt;？id=13333%27ununionion%a0seseselectlectlect%a01,group_concat%28table_name%</summary>
+      
+    
+    
+    
+    
+    <category term="sqli-lab" scheme="https://huaerjiejue.github.io/tags/sqli-lab/"/>
+    
+  </entry>
+  
+  <entry>
     <title>sqli-26a</title>
     <link href="https://huaerjiejue.github.io/2023/01/18/sqli-26a/"/>
     <id>https://huaerjiejue.github.io/2023/01/18/sqli-26a/</id>
     <published>2023-01-18T11:15:50.000Z</published>
-    <updated>2023-01-18T11:31:05.686Z</updated>
+    <updated>2023-01-19T08:58:46.610Z</updated>
     
-    <content type="html"><![CDATA[<p>​    我决定了，以后就直接写题目了，这样比较只管，还简单，今天是26a</p><p>​    这关有点不寻常，它首先关闭了报错显示，然后过滤了一些符号，这就导致我在测试参数闭合的时候手忙脚乱，以至于昨天心烦意乱的上床了。</p><p>​    根据源码，我们得知，这关闭合情况是单引号和括号，但是无论我怎么测试都测试不出来那个括号。</p><p>​    其实网上有相应的方法，但是，今天我才看到网络世界的丰富多彩，真他妈一塌糊涂啊，有的上来直接看源码，然后直接闭合，有的根本不对，有的明明双引号也可以，但就是忽略，属实让我想狠狠吐槽一下子。下面说一下我在网上好不容易找到的两种测试闭合的方式，其中第一种实在是太牛了。</p><h4 id="First"><a href="#First" class="headerlink" title="First:"></a>First:</h4><p><code>id=2&#39;&amp;&amp;&#39;1&#39;=&#39;1</code></p><p>​    若查询语句为<code>where id=&#39;$id&#39;</code>，查询时是<code>where id=&#39;2&#39;&amp;&amp;&#39;1&#39;=&#39;1&#39;</code>，结果是<code>where id=&#39;2&#39;</code>，回显会是<code>id=2</code>。</p><p>​    若查询语句为<code>where id=(&#39;$id&#39;)</code>，查询时是<code>where id=(&#39;2&#39;&amp;&amp;&#39;1&#39;=&#39;1&#39;)</code>，MySQL 将<code>&#39;2&#39;</code>作为了 Bool 值，结果是<code>where id=(&#39;1&#39;)</code>，回显会是<code>id=1</code>。</p><p>​    这属实是聪明了，不是吗？就是不知道双引号的时候怎么办😖😖😖😖</p><h4 id="Second"><a href="#Second" class="headerlink" title="Second:"></a>Second:</h4><p>;%00</p><p>​    说实话，这个我目前还不知道为什么，但他就是可以区分出来括号和双引号，你说气不气</p><p>​    当输入1’；%00的时候，没有回显，表示有错误</p><p>​    当输入1‘”；%00的时候，同样没有回显，表示有错误</p><p>​    当输入1’）；%00的时候，回显正常，表示ok</p><p>这个确实听迷惑，但也可以，emmmmmm，离谱</p>]]></content>
+    <content type="html"><![CDATA[<p>​    我决定了，以后就直接写题目了，这样比较只管，还简单，今天是26a</p><p>​    这关有点不寻常，它首先关闭了报错显示，然后过滤了一些符号，这就导致我在测试参数闭合的时候手忙脚乱，以至于昨天心烦意乱的上床了。</p><p>​    根据源码，我们得知，这关闭合情况是单引号和括号，但是无论我怎么测试都测试不出来那个括号。</p><p>​    其实网上有相应的方法，但是，今天我才看到网络世界的丰富多彩，真他妈一塌糊涂啊，有的上来直接看源码，然后直接闭合，有的根本不对，有的明明双引号也可以，但就是忽略，属实让我想狠狠吐槽一下子。下面说一下我在网上好不容易找到的两种测试闭合的方式，其中第一种实在是太牛了。</p><h4 id="First"><a href="#First" class="headerlink" title="First:"></a>First:</h4><p><code>id=2&#39;&amp;&amp;&#39;1&#39;=&#39;1</code></p><p>​    若查询语句为<code>where id=&#39;$id&#39;</code>，查询时是<code>where id=&#39;2&#39;&amp;&amp;&#39;1&#39;=&#39;1&#39;</code>，结果是<code>where id=&#39;2&#39;</code>，回显会是<code>id=2</code>。</p><p>​    若查询语句为<code>where id=(&#39;$id&#39;)</code>，查询时是<code>where id=(&#39;2&#39;&amp;&amp;&#39;1&#39;=&#39;1&#39;)</code>，MySQL 将<code>&#39;2&#39;</code>作为了 Bool 值，结果是<code>where id=(&#39;1&#39;)</code>，回显会是<code>id=1</code>。</p><p>​    这属实是聪明了，不是吗？就是不知道双引号的时候怎么办😖😖😖😖</p><h4 id="Second"><a href="#Second" class="headerlink" title="Second:"></a>Second:</h4><p>;%00</p><p>​    说实话，这个我目前还不知道为什么，但他就是可以区分出来括号和双引号，你说气不气</p><p>​    当输入1’；%00的时候，没有回显，表示有错误</p><p>​    当输入1‘”；%00的时候，同样没有回显，表示有错误</p><p>​    当输入1’）；%00的时候，回显正常，表示ok</p><p>这个确实听迷惑，但也可以，emmmmmm，离谱</p><p>———————一天后——————————</p><p>我想明白了，我终于想明白了，php语句和c语言等一样，后面都与要分号；，而%00又使用于00截断，这里就是相当于给当前语句加上一个分号并且把后面的东西截断一下，这不就是相当于注释掉了吗，总的来说，这也是个好办法。</p>]]></content>
     
     
       
@@ -70,9 +112,9 @@
     <link href="https://huaerjiejue.github.io/2023/01/13/gameshell%E5%91%BD%E4%BB%A4%E6%80%BB%E7%BB%93/"/>
     <id>https://huaerjiejue.github.io/2023/01/13/gameshell%E5%91%BD%E4%BB%A4%E6%80%BB%E7%BB%93/</id>
     <published>2023-01-13T09:23:10.000Z</published>
-    <updated>2023-01-17T09:45:24.037Z</updated>
+    <updated>2023-01-23T07:50:43.589Z</updated>
     
-    <content type="html"><![CDATA[<h1 id="game-shell命令总结"><a href="#game-shell命令总结" class="headerlink" title="game shell命令总结"></a>game shell命令总结</h1><p>最近迷上了gameshell这个小游戏，总体来说挺不错的，在玩游戏的同时就可以学习linux的命令，所以写一篇博客可以记录一下，估计当我全部通关后应该挺多的吧。</p><p>[TOC]</p><h2 id="mission-1-14"><a href="#mission-1-14" class="headerlink" title="mission 1~14:"></a>mission 1~14:</h2><ul><li>cat：显示文本信息</li><li>cd：进入文件，单纯的cd是回到根目录，~代表根目录，加上。。是返回上一级目录，加上-是返回上次操作时的目录</li><li>ls：列出当前文件夹中的文件，-a是全部显示，包括隐藏掉的，医保linux文件以‘.’开头的文件是隐藏的，-l列出信息的同时列出创建时间等细节</li><li>cal：列出日历信息，加上年份时列出某具体一年的日历</li><li>alias：简化命令，例如：<code>alias la=&#39;ls -a&#39;</code>是将后面的命令包装成前面的命令</li><li>rm:：移除文件</li><li>mv：移动文件，相当于剪切，<code>mv FILE dir</code>FILE是要移动的文件，dir是移动的目的文件夹</li><li>mkdir：make direction 创建文件夹</li><li>pwd：列出当前文件位置</li></ul><h2 id="mission-15"><a href="#mission-15" class="headerlink" title="mission 15:"></a>mission 15:</h2><ul><li>介绍了一下nano编辑器的简单使用，可以用于创建文件并写入文件。</li></ul><p>  ​    o是保存，x是退出，当然编辑器上有提示</p><h2 id="mission-16"><a href="#mission-16" class="headerlink" title="mission 16:"></a>mission 16:</h2><ul><li>使用了一下 alias journal&#x3D;’nano ~&#x2F;Forest&#x2F;Hut&#x2F;Chest&#x2F;journal.txt’来在任意位置使用</li></ul><hr><p>这里有一个小插曲，介绍了re这个文件，例如bash命令下是.bashrc，zsh命令下是.zshrc，用于记录自己的alias命令，以防止自己忘记，当然，不是电脑帮忙记住，是要自己手动输入</p><hr><h2 id="mission17"><a href="#mission17" class="headerlink" title="mission17:"></a>mission17:</h2><ul><li>nothing,it is trully a game,😂😂</li></ul><h2 id="mission-18"><a href="#mission-18" class="headerlink" title="mission 18:"></a>mission 18:</h2><p>了解了一个有趣的linux命令，xeyes，会出现一只小眼睛一直看着你的鼠标，非常有意思，然后如果你想让它后台运行，也就是不妨碍你继续工作，可以使用 xeyes &amp;这个命令，它就会后台运行，然后，ctrl+c就是退出。下面再列举一些有趣的linux命令：</p><ol><li><p>xeyes，出现一双眼睛</p></li><li><p>rev，颠倒输入的字符，如果输入asd，输出dsa</p></li><li><p>sl，会出现一辆火车从屏幕右边开往屏幕左边</p></li><li><p>asciiview，给它一个照片，它会输出用二进制表示的相应照片，单数需要先安装</p><p>aview，然后安装imagemagick，最后使用即可</p></li><li><p>aafire，在终端放一把火，安装libaa-bin，运行即可</p></li><li><p>cmatrix，字符雨，想象黑客帝国，同样，安装cmatrix，然后运行</p></li><li><p>boxes，使用字符型图形包装文字，具体参考<a href="(https://zhuanlan.zhihu.com/p/52558937)">boxes</a></p></li></ol><h2 id="mission-19-amp-20"><a href="#mission-19-amp-20" class="headerlink" title="mission 19&amp;20:"></a>mission 19&amp;20:</h2><ul><li>ls -R,列出当前目录的文件以及文件中的文件，就是把这个文件中的所有东西都列举出来。</li><li>tree，同ls-r类似，就是会用树状图的形式列举出来</li></ul><p> 以上两个命令对于找文件非常好用</p>]]></content>
+    <content type="html"><![CDATA[<h1 id="game-shell命令总结"><a href="#game-shell命令总结" class="headerlink" title="game shell命令总结"></a>game shell命令总结</h1><p>最近迷上了gameshell这个小游戏，总体来说挺不错的，在玩游戏的同时就可以学习linux的命令，所以写一篇博客可以记录一下，估计当我全部通关后应该挺多的吧。</p><p>[TOC]</p><h2 id="mission-1-14"><a href="#mission-1-14" class="headerlink" title="mission 1~14:"></a>mission 1~14:</h2><ul><li>cat：显示文本信息</li><li>cd：进入文件，单纯的cd是回到根目录，~代表根目录，加上。。是返回上一级目录，加上-是返回上次操作时的目录</li><li>ls：列出当前文件夹中的文件，-a是全部显示，包括隐藏掉的，医保linux文件以‘.’开头的文件是隐藏的，-l列出信息的同时列出创建时间等细节</li><li>cal：列出日历信息，加上年份时列出某具体一年的日历</li><li>alias：简化命令，例如：<code>alias la=&#39;ls -a&#39;</code>是将后面的命令包装成前面的命令</li><li>rm:：移除文件</li><li>mv：移动文件，相当于剪切，<code>mv FILE dir</code>FILE是要移动的文件，dir是移动的目的文件夹</li><li>mkdir：make direction 创建文件夹</li><li>pwd：列出当前文件位置</li></ul><h2 id="mission-15"><a href="#mission-15" class="headerlink" title="mission 15:"></a>mission 15:</h2><ul><li>介绍了一下nano编辑器的简单使用，可以用于创建文件并写入文件。</li></ul><p>  ​    o是保存，x是退出，当然编辑器上有提示</p><h2 id="mission-16"><a href="#mission-16" class="headerlink" title="mission 16:"></a>mission 16:</h2><ul><li>使用了一下 alias journal&#x3D;’nano ~&#x2F;Forest&#x2F;Hut&#x2F;Chest&#x2F;journal.txt’来在任意位置使用</li></ul><hr><p>这里有一个小插曲，介绍了re这个文件，例如bash命令下是.bashrc，zsh命令下是.zshrc，用于记录自己的alias命令，以防止自己忘记，当然，不是电脑帮忙记住，是要自己手动输入</p><hr><h2 id="mission17"><a href="#mission17" class="headerlink" title="mission17:"></a>mission17:</h2><ul><li>nothing,it is trully a game,😂😂</li></ul><h2 id="mission-18"><a href="#mission-18" class="headerlink" title="mission 18:"></a>mission 18:</h2><p>了解了一个有趣的linux命令，xeyes，会出现一只小眼睛一直看着你的鼠标，非常有意思，然后如果你想让它后台运行，也就是不妨碍你继续工作，可以使用 xeyes &amp;这个命令，它就会后台运行，然后，ctrl+c就是退出。下面再列举一些有趣的linux命令：</p><ol><li><p>xeyes，出现一双眼睛</p></li><li><p>rev，颠倒输入的字符，如果输入asd，输出dsa</p></li><li><p>sl，会出现一辆火车从屏幕右边开往屏幕左边</p></li><li><p>asciiview，给它一个照片，它会输出用二进制表示的相应照片，单数需要先安装</p><p>aview，然后安装imagemagick，最后使用即可</p></li><li><p>aafire，在终端放一把火，安装libaa-bin，运行即可</p></li><li><p>cmatrix，字符雨，想象黑客帝国，同样，安装cmatrix，然后运行</p></li><li><p>boxes，使用字符型图形包装文字，具体参考<a href="(https://zhuanlan.zhihu.com/p/52558937)">boxes</a></p></li></ol><h2 id="mission-19-amp-20"><a href="#mission-19-amp-20" class="headerlink" title="mission 19&amp;20:"></a>mission 19&amp;20:</h2><ul><li>ls -R,列出当前目录的文件以及文件中的文件，就是把这个文件中的所有东西都列举出来。</li><li>tree，同ls-r类似，就是会用树状图的形式列举出来</li></ul><p> 以上两个命令对于找文件非常好用</p><h2 id="mission-21："><a href="#mission-21：" class="headerlink" title="mission 21："></a>mission 21：</h2><ul><li><p>find，用于查找文件</p><p>主要参数： -name，指定名字，必须完全一样，不然就需要*和？</p><p>​                   -iname，指定名字，但忽略大小写</p><p>​                    -size，指定大小，其中有 b块 c字节 w字 k千字节 M兆字节 G吉字节，注意大小写</p><p>具体可以看<a href="https://wangchujiang.com/linux-command/c/find.html#!kw=head">find 命令，Linux find 命令详解：在指定目录下查找文件 - Linux 命令搜索引擎 (wangchujiang.com)</a>需要外网。</p></li><li><p>man，<strong>man命令</strong> 是Linux下的帮助指令，通过man指令可以查看Linux中的指令帮助、配置文件帮助和编程帮助等信息。</p></li></ul><h2 id="mission-22："><a href="#mission-22：" class="headerlink" title="mission 22："></a>mission 22：</h2><ul><li>head，用于print文件里的内容，通过-n可以指定输出几行，与cat的区别是，cat是展示全部，head是展示前几行，默认是输出10行，-c参数用于指定字节，后面的number可以有一个乘数后缀，例如1024*1024之类的。也可以使用二进制前缀</li></ul><h2 id="mission-23"><a href="#mission-23" class="headerlink" title="mission 23:"></a>mission 23:</h2><ul><li>tail，同head差不多，不同的是tail展示后几行，默认也是10行，也可以通过-n等参数进行控制</li></ul><h2 id="mission-24"><a href="#mission-24" class="headerlink" title="mission 24:"></a>mission 24:</h2><ul><li>cat FILE1 FILE2 FILE3 FILEn，依次顺序输出</li></ul><h2 id="mission-25"><a href="#mission-25" class="headerlink" title="mission 25:"></a>mission 25:</h2><ul><li>|(管道)，用于将两个进程相联系，举个例子：<code>COMMAND1 | COMMAND2</code> 将命令1的输出当作命令2的输入，这一关使用的是这样的，因为cat可以同24关一样一块输出，但是tail不能使用多个文件，但是cat不能去掉标题，所以可以使用cat将两个文件先结合起来，然后通过tail去除标题，<code>cat page_01 page_02 | tail -n 16</code></li></ul>]]></content>
     
     
       

@@ -1,5 +1,7 @@
-https://huaerjiejue.github.io/2023/01/18/sqli-26a/
+https://huaerjiejue.github.io/2023/01/23/sqli-29/
 https://huaerjiejue.github.io/2023/01/13/gameshell%E5%91%BD%E4%BB%A4%E6%80%BB%E7%BB%93/
+https://huaerjiejue.github.io/2023/01/19/sqli-27/
+https://huaerjiejue.github.io/2023/01/18/sqli-26a/
 https://huaerjiejue.github.io/2023/01/15/sql%E6%B3%A8%E5%85%A5%E7%AC%94%E8%AE%B04/
 https://huaerjiejue.github.io/2023/01/12/sql%E6%B3%A8%E5%85%A5%E7%AC%94%E8%AE%B03/
 https://huaerjiejue.github.io/2023/01/07/sql%E6%B3%A8%E5%85%A5%E4%B9%8Bcookie%E6%B3%A8%E5%85%A5/

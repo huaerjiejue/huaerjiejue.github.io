@@ -1,0 +1,26 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> sqli-29 · 小阔的bug日常</title><meta name="description" content="sqli-29 - 小阔"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="search" type="application/opensearchdescription+xml" href="https://huaerjiejue.github.io/atom.xml" title="小阔的bug日常"><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="小阔的bug日常" type="application/atom+xml">
+</head><body><div class="wrap"><header><a href="/" class="logo-link"><img src="/favicon.png" alt="logo"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/archives/" target="_self" class="nav-list-link">ARCHIVE</a></li><li class="nav-list-item"><a href="/atom.xml" target="_self" class="nav-list-link">RSS</a></li></ul></header><main class="container"><div class="post"><article class="post-block"><h1 class="post-title">sqli-29</h1><div class="post-info">2023年1月23日</div><div class="post-content"><p>​    第29关，可能是编写作者的问题或者其他，第29关如果直接进入，跟他妈没有防御一样，<img src="https://jsd.cdn.zzko.cn/gh/huaerjiejue/pic_of_myweb@master/image.3f4ypw04roe0.webp" alt="image" style="zoom: 33%;" /></p>
+<p>直接输入id，单引号闭合，然后直接注入就好，直接爆破了，然后带着疑惑去网上查询，发现人家都是又WAF的，真奇怪，为什么我直接输入id&#x3D;1‘就不会准换页面，<img src="https://cdn.staticaly.com/gh/huaerjiejue/pic_of_myweb@master/image.3z9d3vf7zn80.webp" alt="image" style="zoom:33%;" /></p>
+<p>然后看到了<a target="_blank" rel="noopener" href="https://blog.51cto.com/u_15064644/3461635">一篇文章</a>发现可能是文件的问题，打开文件目录，发现这三个文件</p>
+<p><img src="https://jsd.cdn.zzko.cn/gh/huaerjiejue/pic_of_myweb@master/image.6jqfjz6wqy40.webp" alt="image"></p>
+<p>于是试着在less-29后面加上login.php，就有waf了，成功可以有难度的注入了。</p>
+<p><strong>正文开始：</strong></p>
+<p>输入id&#x3D;1，成功，</p>
+<p>输入id&#x3D;1’，报错，转出，<img src="https://jsd.cdn.zzko.cn/gh/huaerjiejue/pic_of_myweb@master/image.iedtglz30uw.webp" alt="image" style="zoom:33%;" /></p>
+<p>正当迷茫的时候，眼前一亮，发现有两个参考</p>
+<p><img src="https://cdn.staticaly.com/gh/huaerjiejue/pic_of_myweb@master/image.49lczztlynm0.webp" alt="image"></p>
+<p>​    看了一眼，emmm，看不懂，但大概讲的是http参数污染，我猜测作者可能想通过这关教程参数污染，向浏览器输入<code>?id=1 &amp;id=222 union select 1,2,3 —+</code>可惜，没有成功，通过一番改动后发现<code>?id=1&amp;id=222&#39; union select 1,2,3 --+</code>可以，为什么呢，根据后面我们可知，后端代码通过&amp;分隔语句，第一个语句后面有空格，俨然不成立，然后由于php阿帕奇数据库面对参数污染的情况下查询的是第二个参数，但是我没有协商分号，通过这两个改动，语句成功执行。<img src="https://cdn.staticaly.com/gh/huaerjiejue/pic_of_myweb@master/image.2eyz3gm7k05c.webp" alt="image" style="zoom:33%;" /></p>
+<p>后面就可以愉快的注入了，报数据一气呵成。</p>
+<p>下面通过代码说明一下绕过原理：</p>
+<p>前面大抵是无差别的，就是多了两个函数，<code>java_implimentation</code>和<code>whitelist</code>,</p>
+<p><img src="https://cdn.staticaly.com/gh/huaerjiejue/pic_of_myweb@master/image.747514oyn8w0.webp" alt="image"></p>
+<p>​    然后接着向下查找这两个函数，发现代码如下</p>
+<img src="https://cdn.staticaly.com/gh/huaerjiejue/pic_of_myweb@master/image.3yqupbctc0o0.webp" alt="image" style="zoom: 50%;" />
+
+<img src="https://cdn.staticaly.com/gh/huaerjiejue/pic_of_myweb@master/image.6esi9vsvh9c0.webp" alt="image" style="zoom: 50%;" />
+
+<p>​    上面第一个函数就是与传入进来的数据进行比较，判断是否是纯数字，如果是就通过，如果并不是就转到报错界面，第二个函数就是把传入的数字通过&amp;进行划分，放进数组里，找到前面是id的一个元素，返回这个元素id&#x3D;后面的东西，而主函数就是将这个分离出来的东西放入whitelist进行检测，如果没有错误就会执行。</p>
+<p>我们的构造语句就是通过在语句中加入&amp;进行划分，java_函数通过第一个id&#x3D;1后因为break后面就不进行检测了，然后传出的数据自然可以通过whitelist检测，顺利通过后再将原来的语句放入数据库进行查询，而阿帕奇php的数据库查询的确实后面的参数，这样，我们就绕过了防御并进行了入侵。</p>
+<p>​    简单说明一下，不同的服务器，不同的语言对于参数污染的处理不同，渗透测试的时候可以依据下面的数据，<img src="https://cdn.staticaly.com/gh/huaerjiejue/pic_of_myweb@master/image.2s6cxefbit80.webp" alt="image" style="zoom: 67%;" /></p>
+<p>通过上面的内容我们可以对于不同的情况进行分析，当然，没有的数据也不要慌，试一下就好了。简单说明一下，<code>java_implimentation()</code>是用于模仿参数污染，当输入不同参数的时候以&amp;进行分割，但是这个函数的问题就是它划分完之后找到一个id就break，没有多次进行验证，这样就导致了hpp（参数污染）成功。</p>
+</div></article></div></main><footer><div class="paginator"><a href="/2023/01/19/sqli-27/" class="next">下一篇</a></div><div class="copyright"><p>© 2015 - 2023 <a href="https://huaerjiejue.github.io">小阔</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/pinggod/hexo-theme-apollo" target="_blank">hexo-theme-apollo</a>.</p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha384-crwIf/BuaWM9rM65iM+dWFldgQ1Un8jWZMuh3puxb8TOY9+linwLoI7ZHZT+aekW" crossorigin="anonymous"></script></body></html>
