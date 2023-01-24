@@ -10,8 +10,8 @@ https://huaerjiejue.github.io/2022/12/31/last-day-of-2022/
 https://huaerjiejue.github.io/2022/12/25/python%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B01/
 https://huaerjiejue.github.io/2022/12/23/sql%E6%B3%A8%E5%85%A5%E7%AC%94%E8%AE%B01/
 https://huaerjiejue.github.io/
+https://huaerjiejue.github.io/tags/linux-gameshell/
+https://huaerjiejue.github.io/tags/sqli-lab/
 https://huaerjiejue.github.io/tags/%E5%8D%95%E5%BC%95%E5%8F%B7%EF%BC%8C%E5%8F%8C%E5%BC%95%E5%8F%B7%EF%BC%8C%E6%8B%AC%E5%8F%B7/
 https://huaerjiejue.github.io/tags/sql%E6%B3%A8%E5%85%A5-%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8-cookie/
 https://huaerjiejue.github.io/tags/sql%E6%B3%A8%E5%85%A5-%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95/
-https://huaerjiejue.github.io/tags/linux-gameshell/
-https://huaerjiejue.github.io/tags/sqli-lab/
