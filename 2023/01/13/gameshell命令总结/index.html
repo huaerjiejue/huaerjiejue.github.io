@@ -70,4 +70,105 @@
 <h2 id="mission-25"><a href="#mission-25" class="headerlink" title="mission 25:"></a>mission 25:</h2><ul>
 <li>|(管道)，用于将两个进程相联系，举个例子：<code>COMMAND1 | COMMAND2</code> 将命令1的输出当作命令2的输入，这一关使用的是这样的，因为cat可以同24关一样一块输出，但是tail不能使用多个文件，但是cat不能去掉标题，所以可以使用cat将两个文件先结合起来，然后通过tail去除标题，<code>cat page_01 page_02 | tail -n 16</code></li>
 </ul>
-</div></article></div></main><footer><div class="paginator"><a href="/2023/01/15/sql%E6%B3%A8%E5%85%A5%E7%AC%94%E8%AE%B04/" class="prev">PREV</a><a href="/2023/01/12/sql%E6%B3%A8%E5%85%A5%E7%AC%94%E8%AE%B03/" class="next">NEXT</a></div><div class="copyright"><p>© 2015 - 2023 <a href="https://huaerjiejue.github.io">小阔</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/pinggod/hexo-theme-apollo" target="_blank">hexo-theme-apollo</a>.</p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha384-crwIf/BuaWM9rM65iM+dWFldgQ1Un8jWZMuh3puxb8TOY9+linwLoI7ZHZT+aekW" crossorigin="anonymous"></script></body></html>
+<h2 id="mission-27"><a href="#mission-27" class="headerlink" title="mission 27:"></a>mission 27:</h2><ul>
+<li>ps，列出正在进行的进程</li>
+<li>kill，发送信号到进程</li>
+<li>clear(control -c)，清除界面</li>
+</ul>
+<h2 id="mission-28"><a href="#mission-28" class="headerlink" title="mission 28:"></a>mission 28:</h2><ul>
+<li>kill，-l 列出信号，-s 信号名称，使用如下：</li>
+</ul>
+<p>​     <img src="https://cdn.staticaly.com/gh/huaerjiejue/pic_of_myweb@master/image.153c88jdzn34.webp" alt="image"></p>
+<p>常见的信号以及名称如下：</p>
+<p><img src="D:\hexo-jason-blog\source_posts\assets\image-20230126191102735.png" alt="image-20230126191102735"></p>
+<p>这里推荐一下一个平台，包含绝大部分linux<a target="_blank" rel="noopener" href="https://wangchujiang.com/linux-command/">命令</a>，虽然好像也没有人看吧。。。。。</p>
+<ul>
+<li>PID，进程ID</li>
+</ul>
+<h2 id="mission-29"><a href="#mission-29" class="headerlink" title="mission 29:"></a>mission 29:</h2><ul>
+<li>pstree，以树状图方式展示进程之间的派生关系，-p PID 显示程序识别码，  pstree $$ 以树状图展示，同时显示脚本运行的进程ID</li>
+</ul>
+<h2 id="mission-31"><a href="#mission-31" class="headerlink" title="mission 31:"></a>mission 31:</h2><ul>
+<li><p>&gt;，重定向输出，COMMAND &gt; FILE 将命令的输出结果输出到文件，具体见使用：</p>
+<p><img src="https://cdn.staticaly.com/gh/huaerjiejue/pic_of_myweb@master/image.7bl39zjxfn00.webp" alt="image"></p>
+</li>
+</ul>
+<p>其实大于小于号都一样，看箭头指向那边那边就输出，但是符号左边一定是COMMAND右边一定是FILE。</p>
+<p>ps，第32关有亿点点难，头一次没解决关卡退出，啊啊啊啊，明天一定要做出来。</p>
+<h2 id="mission-32"><a href="#mission-32" class="headerlink" title="mission 32:"></a>mission 32:</h2><ul>
+<li>less,一种查看文本的方式，一般情况下，cat查看是全部查看，这样面对一些大的文件的时候就会比较占用资源，less，就是部分部分的看，通过pgup,pgdn,space,q来操纵着看，还可以通过&#x2F;来搜索，这样既比较简洁，又不会对内存有较大的需求，当然这关虽然给了这个命令，但是通过这个关卡根本没有用到这个命令。无语了家人们。</li>
+</ul>
+<p>下面是通关的语句，<img src="https://cdn.staticaly.com/gh/huaerjiejue/pic_of_myweb@master/image.604jkk1caa80.webp" alt="image"></p>
+<p>保存到inventory.txt文件的内容如下，</p>
+<img src="https://cdn.staticaly.com/gh/huaerjiejue/pic_of_myweb@master/image.1zhdfpxwh4m8.webp" alt="image"  />
+
+<p>这里说明一下，ls本质是用于显示目录内容列表的，也就是说ls后面应该跟上一个文件夹，或者干脆不加，而ls后面单纯地加上文件，它就只会单纯地显示这个文件的名字，这也就是为什么保存在inventory.txt里面的是这些文件里面的名字而不是他们的内容了，如果要加入内容，可以这么写，</p>
+<p><code>less gri*&gt;Drawer/inventory.txt</code></p>
+<h2 id="mission-33"><a href="#mission-33" class="headerlink" title="mission 33:"></a>mission 33:</h2><ul>
+<li><p>grep，查找相应的信息，注意grep是从文件中查找，find是查找文件，当然，grep也有相应的快捷指令，-i（不区分大小写），-l（列出文件名称，不包含内容），—color（将查询的字符串用颜色标出，以便更好区分）</p>
+<p>常用格式  <code>grep -key STRING FILE</code></p>
+</li>
+</ul>
+<p>补充一下：</p>
+<ol>
+<li>一般文件有两种输出，一种是standard output（标准输出），也写作“stdout”，也就是内容，一种是error output（标准错误），也写作“stderr”，1&#x3D;&gt;stdout,2&#x3D;&gt;stderr,0&#x3D;&gt;stdin（标准输入）,这些数字用于linux重定向输出的时候，用于夹在重定向符号前面。而&amp;是一个描述符，1&gt;&amp;2表示把标准输出重定向到标准错误，2&gt;&amp;1表示把标准错误重定向到标准输出，&amp;&gt;FILE意思是把标准输出和标准错误输出到文件。一般来说，不加文件描述符，系统默认标准输出。</li>
+<li>对于重定向符号，不只是简单的有&lt; &gt;，还有&lt;&lt; &gt;&gt;，前者代表重定向输出，后者代表添加，意思是后者不会该表文件的内容，直接在后面添加内容，而前者是要全部覆盖的。</li>
+<li>重定向符号 COMMAND &gt; FILE，管道符COMMAND|COMMAND</li>
+<li>&#x2F;dev&#x2F;null，这是一个linux的空设备文件，任何写在里面的东西都会消失，通常与文件的输出结合在一起使用。而且，这个文件在问价中找不到，但是直接使用就好。</li>
+</ol>
+<img src="https://cdn.staticaly.com/gh/huaerjiejue/pic_of_myweb@master/image.5mosftmmdl00.webp" alt="image" style="zoom:80%;" />
+
+<p>这关的代码<code>grep gsh gri* -i -l 2&gt;/dev/null</code>就是匹配gri*的文件，查找是否有gsh这个文本，其中不区分大小写，同时不打印文件内容，同时将标准错误放到&#x2F;dev&#x2F;null中，因为有些文件会因为权限不足无法访问，将标准错付放走会向上面的一样只显示标准输出了，从而没有错误信息，如果文件描述符没有或者为1，那么最终显示的就全都是错误信息了。</p>
+<h2 id="mission-34"><a href="#mission-34" class="headerlink" title="mission 34:"></a>mission 34:</h2><ul>
+<li>.&#x2F;，执行可执行程序</li>
+</ul>
+<p>​    第34关光是找到key还不够，还有两步，第一步，将key导入到一个文件中         <code>./merlin2&gt;merlin_stderr.txt</code>（这里stderr是key）</p>
+<p>​    第二步，通过文件验证，<code>gsh check&lt;merlin_stderr.txt</code></p>
+<h2 id="mission-35"><a href="#mission-35" class="headerlink" title="mission 35:"></a>mission 35:</h2><ul>
+<li><p>chmod，更改文件和目录的权限，选项，-c当文件权限更改时输出信息，-v文论文件是否更改权限都输出信息，-R对目录以及目录一下的文件均修改权限，—referene&#x3D;RFILE根据参考目录更改权限，其中u代表当前用户，g代表组用户，o代表其他用户，a代表全部yoghurt，r是读权力以及八进制数字4，w是写权力以及八进制数字2，x是执行权力以及八进制数字1</p>
+<p>举例：</p>
+<p>chmod g+w .&#x2F;text.log    增加组用户的写的权力</p>
+<p>也可以通过8进制数字进行使用，</p>
+<p>chmod u&#x3D;rwx,g&#x3D;rw,o&#x3D;r .&#x2F;text.log  与</p>
+<p>chmod 764 .&#x2F;text.log等效，其中7&#x3D;4（r）+2（w）+1（x）</p>
+</li>
+</ul>
+<h2 id="mission-36-37"><a href="#mission-36-37" class="headerlink" title="mission 36 37:"></a>mission 36 37:</h2><p>  正常查找文件该权限，直接过。</p>
+<h2 id="mission-38"><a href="#mission-38" class="headerlink" title="mission 38:"></a>mission 38:</h2><p>  这关实在maze中所有文件中找到文件中包含ruby的字符串的文件，并将其移至chest中，一开始我想的是使用管道查询并操作，语句是这样的：<code>find -type f|grep ruby</code>，发现没有，这里的管道前面的命令列举出一堆文件，然后我使用<code>find -type f|cat</code>发现输出的只是这堆文件，并没有输出文件内容，后来根据youtube上面的视频，发现这样可以：<code>find . -type f  -exec grep ruby &#39;&#123;&#125;&#39; \;</code>于是查询了一下，是exec和管道符的区别，对于exec来说，它是对于查到的每一个文件都进行后面的操作，‘{}’代表文件名，而管道|只是对于文件名称进行操作，所以才会出现cat出来的只是文件名的情况。</p>
+<p>“find . -type f -exec grep ruby ‘{}’ ;” 和 “find . -type f | grep ruby” 有如下不同：</p>
+<ol>
+<li>管道命令（”|”）和 exec 选项（”-exec”）的区别：</li>
+</ol>
+<ul>
+<li>管道命令（”|”）是将 find 命令的输出作为 grep 命令的输入，grep 命令对 find 命令的所有输出进行搜索。</li>
+<li>exec 选项（”-exec”）在 find 命令每次找到一个文件时，执行 grep 命令一次。</li>
+</ul>
+<ol start="2">
+<li>结果不同：</li>
+</ol>
+<ul>
+<li>管道命令（”|”）只输出包含 “ruby” 的文件名，并不显示包含 “ruby” 的行。</li>
+<li>exec 选项（”-exec”）输出每个文件中包含 “ruby” 的所有行。</li>
+</ul>
+<p>事实证明，xargs也可以：<code>find -type f|xargs grep ruby &quot;ruby&quot;</code></p>
+<p>关于exec和xargs，exec是对每一个文件都开启一个进程，这样电脑就会变慢，而xargs是统统开到一个进程里面，这样会快并且占用内存少。</p>
+<h2 id="mission-39"><a href="#mission-39" class="headerlink" title="mission 39:"></a>mission 39:</h2><p>  无</p>
+<h2 id="mission-40"><a href="#mission-40" class="headerlink" title="mission 40:"></a>mission 40:</h2><ul>
+<li>grep -v</li>
+</ul>
+<p><img src="https://cdn.staticaly.com/gh/huaerjiejue/pic_of_myweb@master/image.2op42bemx2a0.webp" alt="image"></p>
+<p>  先找到所有普通文件，然后在这里通过xargs查找含有关键字King的文件，再在显示的文本中显示出没有PAID的文本，最后计算就好</p>
+<h2 id="mission-41"><a href="#mission-41" class="headerlink" title="mission 41:"></a>mission 41:</h2><ul>
+<li>wc，统计文件的字节数、字数、行数。-c  统计字节数，或–bytes：显示Bytes数。 -l  统计行数，或–lines：显示列数。 -m  统计字符数，或–chars：显示字符数。 -w  统计字数，或–words：显示字数。一个字被定义为由空白、跳格或换行字符分隔的字符串。 -L # 打印最长行的长度，或–max-line-length。</li>
+</ul>
+<h2 id="mission-41-1"><a href="#mission-41-1" class="headerlink" title="mission 41:"></a>mission 41:</h2><ul>
+<li><p>tr STR1 STR2，转换字符，举个例子，</p>
+<p>echo “HELLO WORLD” | tr ‘A-Z’ ‘a-z’<br>hello world着就是将大写字母转换成小写字母</p>
+<p>当然，还可以进行删除，使用参数-d</p>
+<p>echo “hello 123 world 456” | tr -d ‘0-9’<br>hello  world </p>
+<p><img src="https://cdn.staticaly.com/gh/huaerjiejue/pic_of_myweb@master/image.6hp6amp6ohc0.webp" alt="image"></p>
+</li>
+</ul>
+<h2 id="mission-43"><a href="#mission-43" class="headerlink" title="mission 43:"></a>mission 43:</h2><p><img src="https://cdn.staticaly.com/gh/huaerjiejue/pic_of_myweb@master/image.3379mp3bfey0.webp" alt="image"></p>
+<p>终于完成所有的关卡了，激动，感动，加油。</p>
+</div></article></div></main><footer><div class="paginator"><a href="/2023/01/15/sql%E6%B3%A8%E5%85%A5%E7%AC%94%E8%AE%B04/" class="prev">上一篇</a><a href="/2023/01/12/sql%E6%B3%A8%E5%85%A5%E7%AC%94%E8%AE%B03/" class="next">下一篇</a></div><div class="copyright"><p>© 2015 - 2023 <a href="https://huaerjiejue.github.io">小阔</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/pinggod/hexo-theme-apollo" target="_blank">hexo-theme-apollo</a>.</p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha384-crwIf/BuaWM9rM65iM+dWFldgQ1Un8jWZMuh3puxb8TOY9+linwLoI7ZHZT+aekW" crossorigin="anonymous"></script></body></html>

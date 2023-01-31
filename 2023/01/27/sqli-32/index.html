@@ -1,0 +1,31 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> sqli-32 · 小阔的bug日常</title><meta name="description" content="sqli-32 - 小阔"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="search" type="application/opensearchdescription+xml" href="https://huaerjiejue.github.io/atom.xml" title="小阔的bug日常"><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="小阔的bug日常" type="application/atom+xml">
+</head><body><div class="wrap"><header><a href="/" class="logo-link"><img src="/favicon.png" alt="logo"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/archives/" target="_self" class="nav-list-link">ARCHIVE</a></li><li class="nav-list-item"><a href="/atom.xml" target="_self" class="nav-list-link">RSS</a></li></ul></header><main class="container"><div class="post"><article class="post-block"><h1 class="post-title">sqli-32</h1><div class="post-info">2023年1月27日</div><div class="post-content"><p>  less-32，33，这关是宽字节绕过。</p>
+<p>首先，我们输入id&#x3D;1，回显正常。</p>
+<p>然后，id&#x3D;1后面加上单引号，发现被使用了魔法函数：</p>
+<p><img src="https://cdn.staticaly.com/gh/huaerjiejue/pic_of_myweb@master/image.6g4y9or3dt40.webp" alt="image"></p>
+<p>，不仅单引号，斜杠，反斜杠也是如此。代码如下：</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">check_addslashes</span>(<span class="params"><span class="variable">$string</span></span>) </span>&#123;    </span><br><span class="line">    <span class="variable">$string</span> = <span class="title function_ invoke__">preg_replace</span>(<span class="string">&#x27;/&#x27;</span>. <span class="title function_ invoke__">preg_quote</span>(<span class="string">&#x27;\\&#x27;</span>) .<span class="string">&#x27;/&#x27;</span>, <span class="string">&quot;\\\\\\&quot;</span>, <span class="variable">$string</span>);          <span class="comment">//escape any backslash    </span></span><br><span class="line">    <span class="variable">$string</span> = <span class="title function_ invoke__">preg_replace</span>(<span class="string">&#x27;/\&#x27;/i&#x27;</span>, <span class="string">&#x27;\\\&#x27;&#x27;</span>, <span class="variable">$string</span>);                               <span class="comment">//escape single quote with a backslash    </span></span><br><span class="line">    <span class="variable">$string</span> = <span class="title function_ invoke__">preg_replace</span>(<span class="string">&#x27;/\&quot;/&#x27;</span>, <span class="string">&quot;\\\&quot;&quot;</span>, <span class="variable">$string</span>);                               <span class="comment">//escape double quote with a backslash    </span></span><br><span class="line">    <span class="keyword">return</span> <span class="variable">$string</span>; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>  先解释一下源码，拿单引号举例子<code>&#39;/\&#39;/i&#39;</code>单引号用于包围，两个&#x2F;同样用于包围，其实不只是斜杠，其他的两个相同的符号都可以，i表示不区分大小写，<code>\&#39;</code>前面的反斜杠用于转义，表示一个单引号。</p>
+<p>​    下面说一下宽字节注入原理，MySQL 在使用 GBK 编码的时候，会认为两个字符为一个汉字，例如 <code>%aa%5c</code> 就是一个 汉字。因为过滤方法主要就是在敏感字符前面添加 反斜杠 <code>\</code>，所以这里想办法干掉反斜杠即可。</p>
+<p>​    了解了原理，下面构造payload，</p>
+<pre><code>http://127.0.0.1/sqli-labs-master/Less-32/?id=1%df&#39;union select 1,2,3 --+
+</code></pre>
+<p>​    回显正常，但是仍然是id&#x3D;1时候的信息，说明中文汉字对于这个数据查询的时候被忽略了，将id&#x3D;1换成其他不存在的数值就好了。<img src="https://cdn.staticaly.com/gh/huaerjiejue/pic_of_myweb@master/image.2tx9zs1ygho0.webp" alt="image"></p>
+<p>执行成功，接下来就吃西瓜了。</p>
+<p>​    这道题到这里就截至了吗？其实没有，想一想，你可以成功绕过前面的单引号，是因为数据库对于你前面的乱码是忽略不计的，但是后面查询的时候呢？</p>
+<p>  例如，查询表名，后面的security需要用单引号包含起来，这时候如果还是用宽字节绕过，显示的乱码就会影响数据库的查询，这种情况下‘security’可以用database（）代替，从而绕过，不过我推荐另一种方法，就是url编码，想一想，表名可以用database（）绕过，那么列名呢？查询列名的时候可是没有代替的呀，这时候，我们把表名用url编码一下，浏览器处理 的时候，对于这两个是看成同种东西对待的，因此就可以解决后面需要单引号这个问题了。</p>
+<p>  这里接下来有个小问题，当我们对‘users’进行url编码的时候，浏览器是报错的<img src="https://cdn.staticaly.com/gh/huaerjiejue/pic_of_myweb@master/image.4xa24ytzumi0.webp" alt="image"></p>
+<p>  为什么呢？前面说过，浏览器对于正常值和url编码是同等看待的，我们看下面的报错就知道了：</p>
+<p><img src="https://cdn.staticaly.com/gh/huaerjiejue/pic_of_myweb@master/image.49clirp0w2g0.webp" alt="image"></p>
+<p>可以看到，对于浏览器来说，你输入的，同样没变，url编码只是适用于一些关键字的绕过。</p>
+<p>这时，我们只需要简单的对上面的东西进行16进制编码就可以了</p>
+<p><img src="https://cdn.staticaly.com/gh/huaerjiejue/pic_of_myweb@master/image.2u96wig0tpw0.webp" alt="image"></p>
+<p>绕过成功了，为什么呢，我们根据下面显示的内容就可以看到，其实16进制转换后，服务器后端看到的就是上面的内容，根本没有敏感符号，也就不会阻拦了。</p>
+<p>  这里想根据自己的理解强行解释一下，当然肯定有不对的地方，也算是一点拙见吧，</p>
+<p>  首先，问题1，为什么使用16进制呢？使用bash64等不行吗？  不行，16进制是编码，bash64等是加密，也就是说，你转换成16进制，数据库查询的时候仍然可以查询到，而如果加密了，后面没有解密，数据库肯定查询不到加密后的数据。</p>
+<p>  其次，问题2，为什么仅对表名进行加密，前面的也加密可以吗？  也不可以，前面的叫做关键字，后端数据库连干什么都不知道，更不用说返回信息了，而你告诉它要干什么，只不过是把要处理的数据通过16编码一下，它还是可以查询的。而进行url编码其实是可以的，前面说过，浏览器处理原始数据和url编码后的东西是平等看待的。</p>
+<p>  问题3，<img src="https://cdn.staticaly.com/gh/huaerjiejue/pic_of_myweb@master/image.6x0ytf7g87g0.webp" alt="image"></p>
+<p>我修改将q中的内容进行16进制编码为什么不行？，答，这他妈是搜索的</p>
+<p>​    关于url编码，还要补充一下，为什么url存在编码这个东西，网上一顿查询，大概意思就是使用于非保留字符，有些字符它在url上面是有特殊含义的，如果你要使用没有特殊含义的这个字符，一个简单的方法就是使用这个特殊字符的url编码。</p>
+</div></article></div></main><footer><div class="paginator"><a href="/2023/01/30/sqli-34/" class="prev">上一篇</a><a href="/2023/01/24/sqli-30/" class="next">下一篇</a></div><div class="copyright"><p>© 2015 - 2023 <a href="https://huaerjiejue.github.io">小阔</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/pinggod/hexo-theme-apollo" target="_blank">hexo-theme-apollo</a>.</p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha384-crwIf/BuaWM9rM65iM+dWFldgQ1Un8jWZMuh3puxb8TOY9+linwLoI7ZHZT+aekW" crossorigin="anonymous"></script></body></html>
