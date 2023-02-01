@@ -1,0 +1,43 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> CPU的一点拆分理解 · 小阔的bug日常</title><meta name="description" content="CPU的一点拆分理解 - 小阔"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="search" type="application/opensearchdescription+xml" href="https://huaerjiejue.github.io/atom.xml" title="小阔的bug日常"><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="小阔的bug日常" type="application/atom+xml">
+</head><body><div class="wrap"><header><a href="/" class="logo-link"><img src="/favicon.png" alt="logo"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/archives/" target="_self" class="nav-list-link">ARCHIVE</a></li><li class="nav-list-item"><a href="/atom.xml" target="_self" class="nav-list-link">RSS</a></li></ul></header><main class="container"><div class="post"><article class="post-block"><h1 class="post-title">CPU的一点拆分理解</h1><div class="post-info">2023年2月1日</div><div class="post-content"><p>  关于CPU，以前总是感觉很奇妙，最近观看关于计算机比较底层的视频，有了一点理解。</p>
+<p>说实话，对于CPU，我以前简单的认为它是算术逻辑单元（ALU），其实这是错误的，关于讲解CPU之前，我们要先了解两个东东：ALU和内存</p>
+<h2 id="ALU："><a href="#ALU：" class="headerlink" title="ALU："></a>ALU：</h2><p>什么是alu，它的全称叫做运算逻辑基本单元，根据名字我们就可以大概知道它是用于运算的，我们通过晶体管（可以用来表示0和1两种状态的东西）以不同的逻辑连接（与，或，非，异或）就可以进行不同的算术逻辑运算了。其实我一开始是迷茫的，你他妈怎么运算啊，总不能里面有个人脑，但是看视频的时候，这点就通了，看下面这张图片：<img src="https://cdn.staticaly.com/gh/huaerjiejue/pic_of_myweb@master/image.neyt0nue3cg.webp" alt="image"></p>
+<p>对于a和b两个输入，当都是1，也就是true的时候，通过简单两个单元，形成了两个信号，其中xor是或与，用于计算最低位的数据，and用于计算较高位的数据，我们又知道在二进制中1+1&#x3D;10，其中1就是and位的值，0就是xor位置的值，对于为什么可以这么计算呢，视频中也讲解了相关的原因，可以说是非常友好了：<img src="https://cdn.staticaly.com/gh/huaerjiejue/pic_of_myweb@master/image.7dtmufvf2700.webp" alt="image"></p>
+<p>  我们看前三位，关于异或这个逻辑，上面三行相加都与二进制的运算是相同的，唯独第四位，虽然末尾相同，但是有一位丢掉了，我们就用and位来承接，而前面三种情况呢，由于总是有一个数字是0，所以and总是0，这样这两个逻辑就简单的可以进行一位数据的相加了，相减其实大概上逻辑差不多。其实这里说上一句，and和xor这样的逻辑运算也是通过晶体管进行简单的搭建的，其实很简单，and，有两个输入，一个输出吗？就做成串联，or逻辑呢？那就是并联，就是通过这样做做成了各种各样的逻辑，在通过各种各样的逻辑对不同的数据进行运算。</p>
+<p>  接上面的运算（就是1+1的运算），我们可以简化一下，一个叫做总和，一个叫进位，总和就是xor，进位就是and。当然了只能进行这样的简单计算不足以满足我们打游戏的需求，</p>
+<p>  对于上面的计算，我们叫做半加器，为什么呢，因为你1位二进制的运算，得到的结果确是两位的，那多出来的一位怎么办呢？总不能仍了吧，于是，就有了下面的配置，全加器，就是可以全部显示结果的一个‘器’：<img src="https://cdn.staticaly.com/gh/huaerjiejue/pic_of_myweb@master/image.3vns9z8xxss0.webp" alt="image"></p>
+<p>  简单来说，半加器只是输出总和，也就是后面的位，全加器就说输出进位和总和，这样我们就可以运算了，那更高级的呢？简单，你再把这个全加器看成半加器，再对其包装成一个全加器就好了，累加的足够多，可以运算的范围也就更大<img src="https://cdn.staticaly.com/gh/huaerjiejue/pic_of_myweb@master/image.1ap6vernm6v4.webp" alt="image"></p>
+<p>上面这个东西，根据图片我们也可以看出有8个这个东东，所以我们叫做8位行波进位加法器，用于运算，也就是2的8次方，范围是0到255.对于超出的运算，我们叫做溢出（overflow），会造成不可预想的灾害。</p>
+<p>  这里介绍完了ALU的运算部分，其实还有一部分，叫做逻辑单元，用于进行检测，也是通过不同的逻辑操作，具体可以看这张图：<img src="https://cdn.staticaly.com/gh/huaerjiejue/pic_of_myweb@master/image.6bcqkxvj8ns0.webp" alt="image"></p>
+<p>  这是一个检测输出结果是不是0的一个逻辑单元，对于左侧的用8个二进制表示的数，我们对于它的二进制的每一个位进行检测，如果有一个不是0，它总是会输出1，可是怎么办呢？1代表正确啊，easy，在最后加上一个not的逻辑就好了。</p>
+<p>  好了，这就是ALU的一个大体框架了，我们通常用下面这场图片表示ALU：</p>
+<p><img src="https://cdn.staticaly.com/gh/huaerjiejue/pic_of_myweb@master/image.5tghkytzx9s0.webp" alt="image"></p>
+<p>  这其中有输入A，输入B，操作代码（用于告诉ALU进行什么操作），输出标识，通过它，我们可以得知ALU运算的结果，当然这个结果可以是算数的，也可以是逻辑的（判断的），这也是为什么它叫做算术逻辑基本单元的原因（guess）。by the way，上面的各种功能也是根据各种晶体管和逻辑组合的。</p>
+<h2 id="RAM和寄存器"><a href="#RAM和寄存器" class="headerlink" title="RAM和寄存器"></a>RAM和寄存器</h2><p>  上面写了半天ALU，打了会儿王者，现在来写RAM，在我们用电脑手机工作学习游戏的时候，光会计算可不行，我们需要找到东西可以记下来一些信息，在这种背景下，人们就开始研发内存。顺便说一下，RAM是仅仅在有电的情况下储存，没电了也就没有办法储存了，由于还没有看完，以后再写持久化的储存。</p>
+<p>  <img src="https://cdn.staticaly.com/gh/huaerjiejue/pic_of_myweb@master/image.1yl9v2sn0gao.webp" alt="image"></p>
+<p>看上面两个电路，分别储存0和1，备注，下面那个线是用于回流电流，在or的情况下只要a有一次是1，那么无论它再次怎么变，都只能是1了，因为是or，这样我们就储存了1，同理，我们通过and逻辑来储存0.我们把两种电路连接起来，就做成了AND-OR锁存器（还有其他逻辑锁存器）：<img src="https://cdn.staticaly.com/gh/huaerjiejue/pic_of_myweb@master/image.1qbprmg8ehy8.webp" alt="image"></p>
+<p>  我们通过上面的锁存器既可以记录1，也可以记录0，集体原理可以参考知乎上一位朋友的回答：<a target="_blank" rel="noopener" href="https://www.zhihu.com/question/373693400/answer/1093469618">ANDOR锁存器</a>，简单来说就是SET和RESET都是0的时候，输出的是0，将SET设置为1，则打开了or，输出1，再将RESET设置为1，则打开了and，输出0，将两者都设置为0，就是回归原来。</p>
+<ul>
+<li><p>0 0输出0</p>
+</li>
+<li><p>1 0输出1</p>
+</li>
+<li><p>1 1输出0</p>
+<p>再对这个锁存器加上两个线和一些逻辑电路，我们就形成了一个门锁：<img src="https://cdn.staticaly.com/gh/huaerjiejue/pic_of_myweb@master/image.4rfn3shzq2s0.webp" alt="image"></p>
+<p>第一条线用于写自己要记录的数值，第二条线用于判断是否可以写入，如果第二条线是关闭的，那么无论第一条线怎样变，都不会写进去的，简化一下就变成了这个样子：</p>
+</li>
+</ul>
+<p><img src="https://cdn.staticaly.com/gh/huaerjiejue/pic_of_myweb@master/image.736t1ag9pts0.webp" alt="image"></p>
+<p>  当然，1个bit肯定是把不够用的，所以就出现了寄存器，就是多个锁存器结合在一起：<img src="https://cdn.staticaly.com/gh/huaerjiejue/pic_of_myweb@master/image.2yxrfq09q6i0.webp" alt="image"></p>
+<p>我们通过一个线连接所有的D，也就是数据输入线，然后有选择的开启E线，也就是允许写入线，来决定寄存在哪一位上面，这样一个寄存器可以寄存8个bit，需要8+8+1+17根线，看起来还可以，但是数据一多了就会显得有点太多了，如果我们选择寄存64位，那我们总共需要129根电路，那就比较大了。当然，问题出现就一定是要解决的，于是人们想到了矩阵，当然这里不是数学意义上的矩阵，就是一个方块<img src="https://cdn.staticaly.com/gh/huaerjiejue/pic_of_myweb@master/image.5os7ol7wuzg0.webp" alt="image"></p>
+<p>  像这样，我们可以贮存整整256个寄存器，通过16加16个线相连，就像一个xy坐标一样，一个固定的坐标就代表一个寄存器，对于内部，是这样的：</p>
+<p><img src="https://cdn.staticaly.com/gh/huaerjiejue/pic_of_myweb@master/image.2483yc5fzjs0.webp" alt="image"></p>
+<p>  这里面又多了3条线，数据线，允许写入线，允许读取线，当我们操作时，这3条线贯穿整个寄存器，但是没有旁边的两条线通过，其他的锁存器是没有办法起作用的，这样我们就通过少量线实现了较大规模的对数据的处理，比如，一个包含256锁存器的寄存器，总共需要35条线，这样不是更为方便简洁吗。</p>
+<p>  当然，为了查找具体的地址，我们又有了专门找地址的东西，总共需要8个bit，也就是1位，前4位代表行数，后4位代表列数，这样我们就可以根据地址找到具体的位置然后进行储存了。</p>
+<p>  但是，紧接着问题又来了，256位也还是不够，别急，根据计算机或者说是人类历史发展规律，这时候我们就需要再把这256个进行包装，再把他们看作一个一个的基本单元，再接在外面使得增加储存。<img src="https://cdn.staticaly.com/gh/huaerjiejue/pic_of_myweb@master/image.3z1afwzntqc0.webp" alt="image"></p>
+<p>  左边从上到下一次是8个bit的地址，允许写入线，允许读入线，下方就是我们要储存的数据，是1位，也就是0到255，当我们要操作的时候，左边的线均匀的操作起来，把每个256的寄存器相应的地址和允许的操作打开，然后这8个bit，再一次操作进每个寄存器，也就是一共又8个寄存器，第一个寄存第一位的数字，然后第二位寄存第二位的数字，以此类推，这样，我们总共可以储存256位的数字，而每一位的范围我们前面写到过，是在0到255之间，这样内存就大大增加了。</p>
+<p>  <img src="https://cdn.staticaly.com/gh/huaerjiejue/pic_of_myweb@master/image.uk5kn0g26ao.webp" alt="image"></p>
+<p>我们再对其进行简单的包装一下，就变成了内存条。以上就是关于内存的非常粗略的知识。</p>
+<h2 id="CPU："><a href="#CPU：" class="headerlink" title="CPU："></a>CPU：</h2><p><img src="https://cdn.staticaly.com/gh/huaerjiejue/pic_of_myweb@master/image.33f8r1zzhny0.webp" alt="image"></p>
+<p>  总的来说，CPU就是中间的那个东西，用来操作左侧的ALU进行计算，右侧的内存用于对数据进行处理，上方的寄存器，也是用于对数据进行处理，说一下，我们看CPU这个东西，上面的数字用来找地址，前面是寄存器还是后面是寄存器我也忘了，不过不重要，知道它是用来找地址的就好，下面的数字是来帮助它看懂指示，我们将指示进行代码话，因为计算机只能看懂0和1，所以我们到了底层也只能通过指示二进制话告诉它具体的操作。下面的东西用于控制CPU的运行速率，告诉CPU时间到了，执行下一个程序吧（就是酱紫），我们通常说的超频，低频就是与它有关，超频让他干活快一点，不过容易累死，低频就是慢一点。这样省电。</p>
+</div></article></div></main><footer><div class="paginator"><a href="/2023/01/30/sqli-34/" class="next">下一篇</a></div><div class="copyright"><p>© 2015 - 2023 <a href="https://huaerjiejue.github.io">小阔</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/pinggod/hexo-theme-apollo" target="_blank">hexo-theme-apollo</a>.</p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha384-crwIf/BuaWM9rM65iM+dWFldgQ1Un8jWZMuh3puxb8TOY9+linwLoI7ZHZT+aekW" crossorigin="anonymous"></script></body></html>
