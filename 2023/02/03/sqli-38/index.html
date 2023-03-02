@@ -1,0 +1,26 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> sqli-38 · 小阔的bug日常</title><meta name="description" content="sqli-38 - 小阔"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="search" type="application/opensearchdescription+xml" href="https://huaerjiejue.github.io/atom.xml" title="小阔的bug日常"><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="小阔的bug日常" type="application/atom+xml">
+</head><body><div class="wrap"><header><a href="/" class="logo-link"><img src="/favicon.png" alt="logo"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/archives/" target="_self" class="nav-list-link">ARCHIVE</a></li><li class="nav-list-item"><a href="/atom.xml" target="_self" class="nav-list-link">RSS</a></li></ul></header><main class="container"><div class="post"><article class="post-block"><h1 class="post-title">sqli-38</h1><div class="post-info">2023年2月3日</div><div class="post-content"><p>  这关是sqli-labs38关，是高阶注入的最后一个关卡，是一个新一点的注入方式，堆叠注入，所谓堆叠注入，就是注入不只一个语句，可以注入多个语句。比如再mysql中，每一句都是一个分号；结尾，我们通过对前面一个进行分号把他分隔开，再写一个sql语句，这样我们就执行了堆叠注入。但是要注意：</p>
+<p>​                                               <strong>不是所有的数据库环境都支持堆叠注入</strong></p>
+<p>具体可以看这篇<a target="_blank" rel="noopener" href="https://www.cnblogs.com/backlion/p/9721687.html">文章</a>，写的非常好，有每个数据库的语句还有后面关卡的解析</p>
+<p>  下面是mysql的语句，注意，每个数据库不同，到时候根据不同服务器在网上查询就行了</p>
+<ul>
+<li>新建表：<code>create table test like users；</code>              (table是表名，任意一个都可以)</li>
+<li>删除表：<code>drop table test；</code></li>
+<li>查询数据：<code>select 1,2,3；</code></li>
+<li>加载文件：<code>select load_file(&#39;c:/test.php&#39;)；</code></li>
+<li>插入数据：<code>insert into users(id,username,password) walues (&#39;100&#39;,&#39;new&#39;,&#39;new&#39;)；</code></li>
+<li>更改数据：<code>update users set password=&#39;fuck&#39; where username=&#39;admin&#39;；</code></li>
+<li>删除数据：<code>delete from users [where语句]</code>（或者order by 语句，limit语句）</li>
+<li>删除表中所有数据：<code>delete from users</code></li>
+</ul>
+<p>这里写一下怎样命令行查看数据库，具体参考这篇<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_21238607/article/details/120383046#:~:text=SQl%E5%AD%A6%E4%B9%A0%EF%BC%9Aphpstudy%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8%E5%91%BD%E4%BB%A4%E8%A1%8C%E8%AE%BF%E9%97%AE%E6%95%B0%E6%8D%AE%E5%BA%93%201%20%E4%BD%BF%E7%94%A8cmd%E5%91%BD%E4%BB%A4%E8%A1%8C%E8%BF%9B%E5%85%A5phpStudy%20%E5%AE%89%E8%A3%85%E8%B7%AF%E5%BE%84%EF%BC%9AD%3A%5Cphpstudy_pro%5CExtensions%5CMySQL5.7.26%5Cbin%202,%E8%BE%93%E5%85%A5%EF%BC%9Amysql%20-u%20root%20-p%203%20%E8%BE%93%E5%85%A5%E5%AF%86%E7%A0%81%E5%8D%B3%E5%8F%AF">文章</a>，或者说大体上都是参考这篇文章</p>
+<p>首先，使用cmd打开phpstudy&#x2F;Mysql&#x2F;bin</p>
+<p>其次，输入mysql -u root -p</p>
+<p>然后，输入密码 root</p>
+<p>相应命令：</p>
+<p>show databases;</p>
+<p>use security;</p>
+<p>show tables;</p>
+<p>drop database security;</p>
+<p>drop table users;</p>
+</div></article></div></main><footer><div class="paginator"><a href="/2023/02/03/CSRF%E5%92%8CSSRF%E7%9A%84%E7%90%86%E8%A7%A3/" class="prev">PREV</a><a href="/2023/02/01/CPU%E7%9A%84%E4%B8%80%E7%82%B9%E6%8B%86%E5%88%86%E7%90%86%E8%A7%A3/" class="next">NEXT</a></div><div class="copyright"><p>© 2015 - 2023 <a href="https://huaerjiejue.github.io">小阔</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/pinggod/hexo-theme-apollo" target="_blank">hexo-theme-apollo</a>.</p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha384-crwIf/BuaWM9rM65iM+dWFldgQ1Un8jWZMuh3puxb8TOY9+linwLoI7ZHZT+aekW" crossorigin="anonymous"></script></body></html>
